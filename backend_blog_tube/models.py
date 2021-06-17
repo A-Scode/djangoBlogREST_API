@@ -1,3 +1,86 @@
 from django.db import models
 
+
+
 # Create your models here.
+class users(models.Model):
+    ''' user_id , user_name , join_datetime(auto) , blogs_upload(default= 0)'''
+    user_id = models.CharField(max_length= 10 , primary_key= True , null = False)
+    user_name = models.CharField(max_length= 100 , null = False)
+    email = models.EmailField(max_length= 100 , null = False)
+    password = models.CharField(max_length=200  , null = False)
+    join_datetime  = models.DateTimeField(auto_now_add=True , null = False)
+    blogs_upload = models.IntegerField(default = 0)
+
+    def __iter__(self):
+        self.list = [('user_id', self.user_id) , 
+        ('user_name' , self.user_name),
+        ('email' , self.email)
+        ('join_datetime', self.join_datetime),
+        ('blogs_upload' , self.blogs_upload)]
+
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.list):
+            item = self.list[self.n]
+            self.n += 1
+            return item
+        else:
+            raise StopIteration
+
+class blogs(models.Model):
+    ''' blog_id , user_id , upload_datetime(auto) , likes(0) , dislike(0) '''
+    blog_id = models.CharField(max_length=10 , primary_key= True )
+    blog_title = models.CharField(max_length=100 , null = False )
+    user_id = models.ForeignKey(to = users , on_delete= models.CASCADE)
+    upload_datetime = models.DateTimeField(auto_now_add= True)
+    likes = models.IntegerField(default = 0)
+    dislikes = models.IntegerField(default = 0)
+
+    def __iter__(self):
+        self.list = [('blog_id', self.blog_id) , 
+        ('blog_title' , self.blog_title),
+        ('user_id' , self.user_id),
+        ('upload_datetime', self.upload_datetime),
+        ('likes' , self.likes),
+        ('dislikes',self.dislikes)]
+
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.list):
+            item = self.list[self.n]
+            self.n += 1
+            return item
+        else:
+            raise StopIteration
+
+
+
+
+class comments(models.Model):
+    ''' comment_id , user_id , upload_id , upload_datetime , reply_to(user_id , null= True)  , blog_id'''
+    comment_id = models.CharField(max_length=10 , primary_key= True)
+    user_id = models.ForeignKey(to = users , on_delete=models.CASCADE)
+    upload_datetime = models.DateTimeField(auto_now_add=True)
+    blog_id = models.ForeignKey(to = blogs, null = False , on_delete = models.CASCADE)
+
+    def __iter__(self):
+        self.list = [('comment_id', self.comment_id) , 
+        ('user_id' , self.user_id),
+        ('upload_datetime', self.upload_datetime),
+        ('blog_id' , self.blog_id)]
+
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.list):
+            item = self.list[self.n]
+            self.n += 1
+            return item
+        else:
+            raise StopIteration
