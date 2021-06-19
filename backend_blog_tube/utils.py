@@ -1,6 +1,13 @@
 from .models import users , blogs, comments
 from datetime import datetime
-import json
+import json,shutil,random
+from cryptography.fernet import Fernet
+from PIL  import Image
+from django.conf import settings
+from django.core.mail import send_mail
+
+from django.env_variables import *
+declare_variables()
 
 def generate_user_id():
     no_of_users = len(users.objects.all())
@@ -34,20 +41,67 @@ def serialize( modelObject ):
             raise TypeError('Unknown type to Serialize')
     return serialized_model
 
-def write_users(dict):
+def write_blogs(dict):
     serialize(dict)
-    file = open('users.json' , 'w')
+    file = open('blogs.json' , 'w')
     json.dump(dict , file , indent=4)
     file.flush()
     file.close()
 
-def read_users():
-    file = open('users.json' , 'r')
+def read_blogs():
+    file = open('blogs.json' , 'r')
     object  = json.loads(file)
+    file.close()
     return object
 
 def add_one_blog(user_id):
     user = users.objects.get(user_id = user_id)
     user['blogs_upload'] += 1
     user.save(['blogs_upload'])
-    
+
+def encode_fernet(en_str):
+    fernet = Fernet(os.environ['fernet_key'])
+    encode = fernet.encrypt(en_str.encode()).decode()
+    return encode
+
+def decode_fernet(de_str):
+    fernet  = Fernet(os.environ['fernet_key'])
+    decode  = fernet.decrypt(de_str.encode())
+    return decode.decode()
+
+def delete_user(uid):
+    user = users.objects.get(user_id = uid)
+    user.delete()
+    path = os.path.join(os.getcwd(), "uploaded_media" , uid )
+    if os.path.exists(path):
+        shutil.rmtree(path)
+
+def check_email(email):
+    try:
+        users.objects.get(email = email)
+        return False
+    except Exception as e:
+        print(e)
+        return True
+
+def image_resize(folder_path , img_name):
+    img = Image.open(os.path.join(folder_path , img_name))
+    width , height = img.size
+    ratio = width/height
+    new_width = 80
+    new_height = int(new_width/ratio)
+    img = img.resize((new_width, new_height))
+    img.convert('RGB')
+    img.save(os.path.join(folder_path, "profile.jpg") )
+
+def generate_otp():
+    otp = str(random.randrange(1000,10000))
+    return otp
+
+def send_otp(otp ,username , email):
+    subject = 'OTP for Signup'
+    recipient_list = [email]
+    email_from = settings.EMAIL_HOST_USER
+    html_msg = os.environ['email_template'].format(username , otp)
+    send_mail(subject , "" , email_from, recipient_list ,html_message= html_msg )
+

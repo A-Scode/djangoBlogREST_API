@@ -13,6 +13,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 from django.env_variables import *
+declare_variables()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -22,7 +23,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-55yxsq&!)un2lvdl#cj*=n=2tcvd(^f4*8tk3&)+^wcqyqalco'
+SECRET_KEY = os.environ['django_secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -41,10 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'frontend',
-    'backend_blog_tube'
+    'backend_blog_tube',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -52,6 +55,13 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+CORS_ALLOW_CREDENTAILS = True
+
+CORS_ALLOW_HEADERS = ["*"]
+CORS_ORIGIN_WHITELIST = [
+    os.environ['react_origin']
 ]
 
 ROOT_URLCONF = 'blog_tube.urls'
@@ -128,6 +138,17 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS  = [os.path.join(os.getcwd(), 'frontend', 'blog_tube', 'src', 'componenets', 'statics')]
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(os.getcwd(), 'uploaded_media')
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = os.environ['smtp_server']
+EMAIL_USE_TLS = True
+EMAIL_PORT = str(os.environ['smtp_server_port'])
+EMAIL_HOST_USER = os.environ['sender']
+EMAIL_HOST_PASSWORD = os.environ['sender_pass']
+
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

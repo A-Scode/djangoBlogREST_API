@@ -7,7 +7,7 @@ class users(models.Model):
     ''' user_id , user_name , join_datetime(auto) , blogs_upload(default= 0)'''
     user_id = models.CharField(max_length= 10 , primary_key= True , null = False)
     user_name = models.CharField(max_length= 100 , null = False)
-    email = models.EmailField(max_length= 100 , null = False)
+    email = models.EmailField(max_length= 100 , null = False, default = None)
     password = models.CharField(max_length=200  , null = False)
     join_datetime  = models.DateTimeField(auto_now_add=True , null = False)
     blogs_upload = models.IntegerField(default = 0)
@@ -15,7 +15,7 @@ class users(models.Model):
     def __iter__(self):
         self.list = [('user_id', self.user_id) , 
         ('user_name' , self.user_name),
-        ('email' , self.email)
+        ('email' , self.email),
         ('join_datetime', self.join_datetime),
         ('blogs_upload' , self.blogs_upload)]
 
