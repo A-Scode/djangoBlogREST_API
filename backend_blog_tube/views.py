@@ -65,6 +65,11 @@ def otp_validation(request):
     except:
         return Response({'status' : "fail"})
 
+# @api_view(['POST'])
+# def login_validation(request):
+#     data = json.loads(request.headers['credentails'])
+
+
 
 
 

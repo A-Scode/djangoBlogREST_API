@@ -102,6 +102,6 @@ def send_otp(otp ,username , email):
     subject = 'OTP for Signup'
     recipient_list = [email]
     email_from = settings.EMAIL_HOST_USER
-    html_msg = os.environ['email_template'].format(username , otp)
+    html_msg = os.environ['email_template'].format(username , otp )
     send_mail(subject , "" , email_from, recipient_list ,html_message= html_msg )
 
