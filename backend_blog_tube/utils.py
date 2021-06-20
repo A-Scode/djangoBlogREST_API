@@ -98,10 +98,11 @@ def generate_otp():
     otp = str(random.randrange(1000,10000))
     return otp
 
-def send_otp(otp ,username , email):
+def send_otp(otp ,username , email , type = "signup"):
     subject = 'OTP for Signup'
     recipient_list = [email]
     email_from = settings.EMAIL_HOST_USER
-    html_msg = os.environ['email_template'].format(username , otp )
+    if  type == 'signup':html_msg = os.environ['email_template'].format(username , otp ,os.environ['logo'])
+    else : html_msg = os.environ['forgot_password_template'].format(username , otp ,os.environ['logo'])
     send_mail(subject , "" , email_from, recipient_list ,html_message= html_msg )
 

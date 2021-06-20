@@ -18,7 +18,7 @@ def test(request ):
 
 @api_view(['POST']) 
 def signup(request):
-    global user ,otp
+    global user ,otp_signup
     try:
         data = json.loads(request.headers['userData'])
         if utils.check_email(data['email']):
@@ -41,8 +41,8 @@ def signup(request):
                 print(file_url)
                 utils.image_resize(image_path , file_url)
 
-            otp = utils.generate_otp()
-            utils.send_otp(otp , data['username'], data['email'])
+            otp_signup = utils.generate_otp()
+            utils.send_otp(otp_signup , data['username'], data['email'])
             print("sucess")
             return Response({'status': "otp"})
         
@@ -56,7 +56,7 @@ def signup(request):
 def otp_validation(request):
     try:
         data = request.headers
-        if (data['otp'] == otp):
+        if (data['otp'] == otp_signup):
             user.save()
             return Response({'staus': "success"})
         else:
@@ -65,9 +65,41 @@ def otp_validation(request):
     except:
         return Response({'status' : "fail"})
 
-# @api_view(['POST'])
-# def login_validation(request):
-#     data = json.loads(request.headers['credentails'])
+@api_view(['POST'])
+def login_validation(request):
+    data = json.loads(request.headers['credentails'])
+    
+    try:
+        user = users.objects.get(email = data['email'])
+        password = utils.decode_fernet(user.password)
+        if data['password'] == password:
+            return Response( {'status': 'success' ,
+            "login_data" : {
+                "username": user.user_name,
+                "email" : user.email,
+                "encryp_pass":user.password
+            } } )
+        else :
+            return Response({"status" : "not_match"})
+    except Exception as error:
+        print(error)
+        return Response({"status" : "fail"})
+
+@api_view(['POST'])
+def send_forgot_opt(request):
+    global otp_forgot,user_forgot
+    data = json.loads(request.header['user_data'])
+    email = data['email']
+
+    if not utils.check_email(email):
+        user_forgot = users.objects.get(email = data['email'])
+        otp_forgot = utils.generate_otp()
+        utils.send_otp(otp_forgot ,user_forgot.user_name , email , type = 'forgot_otp' )
+        return Response({'status' : 'success'})
+    else:
+        return Response({'staus': 'error'})
+    
+
 
 
 
