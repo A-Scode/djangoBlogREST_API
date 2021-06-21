@@ -99,7 +99,8 @@ def generate_otp():
     return otp
 
 def send_otp(otp ,username , email , type = "signup"):
-    subject = 'OTP for Signup'
+    if type == 'signup':subject = 'OTP for Signup'
+    else: subject = 'OTP for reset password'
     recipient_list = [email]
     email_from = settings.EMAIL_HOST_USER
     if  type == 'signup':html_msg = os.environ['email_template'].format(username , otp ,os.environ['logo'])

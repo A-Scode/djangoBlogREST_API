@@ -75,6 +75,7 @@ def login_validation(request):
         if data['password'] == password:
             return Response( {'status': 'success' ,
             "login_data" : {
+                "user_id": user.user_id,
                 "username": user.user_name,
                 "email" : user.email,
                 "encryp_pass":user.password
@@ -87,21 +88,43 @@ def login_validation(request):
 
 @api_view(['POST'])
 def send_forgot_opt(request):
-    global otp_forgot,user_forgot
-    data = json.loads(request.header['user_data'])
-    email = data['email']
-
-    if not utils.check_email(email):
-        user_forgot = users.objects.get(email = data['email'])
-        otp_forgot = utils.generate_otp()
-        utils.send_otp(otp_forgot ,user_forgot.user_name , email , type = 'forgot_otp' )
-        return Response({'status' : 'success'})
-    else:
-        return Response({'staus': 'error'})
-    
+    try:
+        global otp_forgot,user_forgot
+        data = json.loads(request.headers['userdata'])
+        email = data['email']
 
 
+        if not utils.check_email(email):
+            user_forgot = users.objects.get(email = data['email'])
+            otp_forgot = utils.generate_otp()
+            utils.send_otp(otp_forgot ,user_forgot.user_name , email , type = 'forgot_otp' )
+            return Response({'status' : 'success'})
+        else:
+            return Response({'status': 'error'})
+    except Exception as error:
+        print(error)
+        return Response({'status': 'error'})
 
+@api_view(['POST'])
+def validate_forgot_otp(request):
+    try:
+        otp = request.headers['otp']
+        if otp == otp_forgot:
+            return Response({'status' : 'success'})
+        else:
+            return Response({'status': 'fail'})
+    except:
+            return Response({'status': 'fail'})
 
-
+@api_view(['POST'])
+def change_password(request):
+    try:
+        new_pass = request.headers['newpass']
+        
+        users.objects.filter(user_id = user_forgot.user_id).update(password = utils.encode_fernet(new_pass))
+        
+        return Response({'status': 'success'})
+    except Exception as error:
+        print(error)
+        return Response({'status' : 'fail'})
 
