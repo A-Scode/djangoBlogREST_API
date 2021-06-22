@@ -10,6 +10,7 @@ urlpatterns = [
     path('loginmanully' , views.login_validation),
     path('forgototp' , views.send_forgot_opt),
     path('validateforgototp' , views.validate_forgot_otp),
-    path('changepassword' , views.change_password)
+    path('changepassword' , views.change_password),
+    path('getprofilephoto', views.get_profile_photo)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

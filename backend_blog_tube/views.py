@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view,renderer_classes
+from rest_framework.renderers import StaticHTMLRenderer
 from .models import users, blogs, comments
 from . import utils
 import json,os
@@ -129,3 +130,13 @@ def change_password(request):
         print(error)
         return Response({'status' : 'fail'})
 
+@api_view(['GET'])
+@renderer_classes([StaticHTMLRenderer])
+def get_profile_photo(request):
+
+    user_id = request.GET['user_id']
+    path =  utils.get_profile_photo_path(user_id)
+    print(path)
+    img = open(path , 'rb')
+    img_data = img.read()
+    return Response(img_data ,content_type= "image/*" )

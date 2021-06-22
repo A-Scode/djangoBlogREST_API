@@ -110,3 +110,12 @@ def send_otp(otp ,username , email , type = "signup"):
 def create_session():
     session_id = "".join(random.choices( string.ascii_letters , k  = 30))
     return session_id
+
+def get_profile_photo_path(user_id):
+    path = os.path.join(settings.MEDIA_ROOT ,user_id )
+    unknown_user = os.path.join(settings.MEDIA_ROOT ,"assets","username.svg")
+
+    if os.path.exists(path):
+        return os.path.join(path , 'profile' , 'profile.jpg')
+    else:
+        return unknown_user
