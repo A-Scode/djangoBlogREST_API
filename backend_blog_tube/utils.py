@@ -1,6 +1,6 @@
 from .models import users , blogs, comments
 from datetime import datetime
-import json,shutil,random
+import json,shutil,random,string
 from cryptography.fernet import Fernet
 from PIL  import Image
 from django.conf import settings
@@ -107,3 +107,6 @@ def send_otp(otp ,username , email , type = "signup"):
     else : html_msg = os.environ['forgot_password_template'].format(username , otp ,os.environ['logo'])
     send_mail(subject , "" , email_from, recipient_list ,html_message= html_msg )
 
+def create_session():
+    session_id = "".join(random.choices( string.ascii_letters , k  = 30))
+    return session_id

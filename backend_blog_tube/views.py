@@ -79,7 +79,8 @@ def login_validation(request):
                 "username": user.user_name,
                 "email" : user.email,
                 "encryp_pass":user.password
-            } } )
+            },
+            "session":utils.create_session() } )
         else :
             return Response({"status" : "not_match"})
     except Exception as error:
