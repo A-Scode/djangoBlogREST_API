@@ -4,7 +4,7 @@ from rest_framework.decorators import api_view,renderer_classes
 from rest_framework.renderers import StaticHTMLRenderer
 from .models import users, blogs, comments
 from . import utils
-import json,os
+import json,os,shutil
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
@@ -31,10 +31,10 @@ def signup(request):
             password = utils.encode_fernet(data['password'])
             )
 
+            image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
+            if not os.path.exists(image_path):
+                os.makedirs(image_path)
             if len(request.FILES) != 0:
-                image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
-                if not os.path.exists(image_path):
-                    os.makedirs(image_path)
                 fs =  FileSystemStorage(image_path)
                 file = request.FILES['image']
                 file_name  = file.name
@@ -62,6 +62,9 @@ def otp_validation(request):
             return Response({'staus': "success"})
         else:
             print('fail OTP')
+            image_path = os.path.join(os.getcwd(), "uploaded_media" , user.user_id )
+            if os.path.exists(image_path):
+                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, user.user_id))
             return Response({'status' : "fail"})
     except:
         return Response({'status' : "fail"})
@@ -139,4 +142,5 @@ def get_profile_photo(request):
     print(path)
     img = open(path , 'rb')
     img_data = img.read()
-    return Response(img_data ,content_type= "image/*" )
+    type = "image/svg+xml" if path[-3 :]== "svg" else "image/*"
+    return Response(img_data ,content_type= type )

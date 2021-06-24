@@ -14,7 +14,6 @@ from pathlib import Path
 import os
 from django.env_variables import *
 declare_variables()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -61,7 +60,7 @@ CORS_ALLOW_CREDENTAILS = True
 
 CORS_ALLOW_HEADERS = ["*"]
 CORS_ORIGIN_WHITELIST = [
-    os.environ['react_origin']
+    os.environ['react_origin'],"http://192.168.43.234:3000" #static local ip
 ]
 
 ROOT_URLCONF = 'blog_tube.urls'

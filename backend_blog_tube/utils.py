@@ -90,9 +90,10 @@ def image_resize(folder_path , img_name):
     ratio = width/height
     new_width = 80
     new_height = int(new_width/ratio)
-    img = img.resize((new_width, new_height))
-    img.convert('RGB')
-    img.save(os.path.join(folder_path, "profile.jpg") )
+    resized_img = img.resize((new_width, new_height))
+    resized_img.convert('RGB')
+    resized_img.save(os.path.join(folder_path, "profile.jpg") )
+    img.save(os.path.join(folder_path,'profileLarge.jpg'))
 
 def generate_otp():
     otp = str(random.randrange(1000,10000))
@@ -112,10 +113,12 @@ def create_session():
     return session_id
 
 def get_profile_photo_path(user_id):
-    path = os.path.join(settings.MEDIA_ROOT ,user_id )
+    path = os.path.join(settings.MEDIA_ROOT ,user_id, 'profile' , 'profile.jpg' )
     unknown_user = os.path.join(settings.MEDIA_ROOT ,"assets","username.svg")
 
     if os.path.exists(path):
-        return os.path.join(path , 'profile' , 'profile.jpg')
+        return path
     else:
         return unknown_user
+
+
