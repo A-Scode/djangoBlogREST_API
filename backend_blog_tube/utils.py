@@ -1,4 +1,4 @@
-from .models import users , blogs, comments
+from .models import users , blogs, comments,followers
 from datetime import datetime
 import json,shutil,random,string
 from cryptography.fernet import Fernet
@@ -36,7 +36,9 @@ def serialize( modelObject ):
         elif value_type == int:
             serialized_model[key] = value
         elif value_type == datetime :
-            serialized_model = value.strftime('%Y-%m-%d %T')
+            serialized_model[key] = value.strftime('%Y-%m-%d %T')
+        elif value_type == bool:
+            serialized_model[key] = str(value).lower()
         else:
             raise TypeError('Unknown type to Serialize')
     return serialized_model
@@ -120,5 +122,20 @@ def get_profile_photo_path(user_id):
         return path
     else:
         return unknown_user
+
+def check_is_follower(is_follower , of):
+    check_with = json.loads(followers.objects.get(of).followers)
+    if is_follower in check_with:
+        return True
+    else :
+        return False
+
+def check_is_follower(is_follower , of):
+    check_with = json.loads(followers.objects.get(of).followers)
+    if is_follower in check_with:
+        return True
+    else :
+        return False
+
 
 

@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 
 
@@ -84,3 +85,47 @@ class comments(models.Model):
             return item
         else:
             raise StopIteration
+
+class settings(models.Model):
+    anonymus_choices = [( True,"show to anonymus") , 
+                         (  False,"doesn't show to anonymus")
+                     ]
+    follower_choices = [( True,"show to followers") , 
+                         ( False,"doesn't show to followers")
+                     ]
+
+    user_id = models.ForeignKey(to = 'users' , on_delete = models.CASCADE)
+    photo_to_anonymus = models.BooleanField(choices= anonymus_choices , default= True)
+    email_to_anonymus = models.BooleanField(choices= anonymus_choices , default= True)
+    photo_to_follower = models.BooleanField(choices= follower_choices , default= True)
+    email_to_follower = models.BooleanField(choices= follower_choices , default= True)
+
+    def __iter__(self):
+        self.list = [('user_id', self.user_id) , 
+        ('photo_to_anonymus' , self.photo_to_anonymus),
+        ('email_to_anonymus', self.email_to_anonymus),
+        ('photo_to_follower' , self.photo_to_follower),
+        ('email_to_follower' , self.email_to_follower)
+        ]
+        
+
+        self.n = 0
+        return self
+
+    def __next__(self):
+        if self.n < len(self.list):
+            item = self.list[self.n]
+            self.n += 1
+            return item
+        else:
+            raise StopIteration
+
+
+class followers(models.Model):
+    user_id = models.ForeignKey(to = "users" , on_delete = models.CASCADE)
+    followers = models.JSONField(default = json.dumps([]))
+
+class followings(models.Model):
+    user_id = models.ForeignKey(to="users" , on_delete=models.CASCADE)
+    followings = models.JSONField( default = json.dumps([]))
+
