@@ -90,12 +90,12 @@ def image_resize(folder_path , img_name):
     img = Image.open(os.path.join(folder_path , img_name))
     width , height = img.size
     ratio = width/height
-    new_width = 80
+    new_width = 160
     new_height = int(new_width/ratio)
     resized_img = img.resize((new_width, new_height))
     resized_img.convert('RGB')
     resized_img.save(os.path.join(folder_path, "profile.jpg") )
-    img.save(os.path.join(folder_path,'profileLarge.jpg'))
+    # img.save(os.path.join(folder_path,'profileLarge.jpg'))
 
 def generate_otp():
     otp = str(random.randrange(1000,10000))
@@ -124,18 +124,12 @@ def get_profile_photo_path(user_id):
         return unknown_user
 
 def check_is_follower(is_follower , of):
-    check_with = json.loads(followers.objects.get(of).followers)
+    check_with = json.loads(followers.objects.get(user_id = of).followers)
     if is_follower in check_with:
         return True
     else :
         return False
 
-def check_is_follower(is_follower , of):
-    check_with = json.loads(followers.objects.get(of).followers)
-    if is_follower in check_with:
-        return True
-    else :
-        return False
-
-
-
+def generate_salt():
+        salt = ''.join(random.choices(string.punctuation , k = 6))
+        return salt

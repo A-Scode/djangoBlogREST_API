@@ -24,38 +24,40 @@ def test(request ):
 @api_view(['POST']) 
 def signup(request):
     global user ,otp_signup
-    try:
-        data = json.loads(request.headers['userData'])
-        if utils.check_email(data['email']):
-            uid = utils.generate_user_id()
-            user = users( 
-                user_id = uid ,
-            user_name = data['username'],
-            email = data['email'],
-            password = utils.encode_fernet(data['password'])
-            )
+    # try:
+    data = json.loads(request.headers['userData'])
+    if utils.check_email(data['email']):
+        uid = utils.generate_user_id()
+        salt  = utils.generate_salt()
+        user = users( 
+            user_id = uid ,
+        user_name = data['username'],
+        email = data['email'],
+        password = utils.encode_fernet(data['password']+salt),
+        salt = salt
+        )
 
-            image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
-            if not os.path.exists(image_path):
-                os.makedirs(image_path)
-            if len(request.FILES) != 0:
-                fs =  FileSystemStorage(image_path)
-                file = request.FILES['image']
-                file_name  = file.name
-                file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
-                print(file_url)
-                utils.image_resize(image_path , file_url)
+        image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
+        if not os.path.exists(image_path):
+            os.makedirs(image_path)
+        if len(request.FILES) != 0:
+            fs =  FileSystemStorage(image_path)
+            file = request.FILES['image']
+            file_name  = file.name
+            file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
+            print(file_url)
+            utils.image_resize(image_path , file_url)
 
-            otp_signup = utils.generate_otp()
-            utils.send_otp(otp_signup , data['username'], data['email'])
-            print("sucess")
-            return Response({'status': "otp"})
-        
-        else:
-            return Response({'status':'exists'})
-    except Exception as error :
-        print(error)
-        return Response({'status' : "fail"})
+        otp_signup = utils.generate_otp()
+        utils.send_otp(otp_signup , data['username'], data['email'])
+        print("sucess")
+        return Response({'status': "otp"})
+    
+    else:
+        return Response({'status':'exists'})
+    # except Exception as error :
+    #     print(error)
+    #     return Response({'status' : "fail"})
 
 @api_view(['POST'])
 def otp_validation(request):
@@ -89,7 +91,7 @@ def login_validation(request):
     
     try:
         user = users.objects.get(email = data['email'])
-        password = utils.decode_fernet(user.password)
+        password = utils.decode_fernet(user.password)[:-6]
         if data['password'] == password:
             session = utils.create_session()
             login_data = {
@@ -146,9 +148,11 @@ def validate_forgot_otp(request):
 @api_view(['POST'])
 def change_password(request):
     try:
-        new_pass = request.headers['newpass']
+        salt = utils.generate_salt()
+
+        new_pass = request.headers['newpass']+salt
         
-        users.objects.filter(user_id = user_forgot.user_id).update(password = utils.encode_fernet(new_pass))
+        users.objects.filter(user_id = user_forgot.user_id).update(password = utils.encode_fernet(new_pass), salt = salt)
         
         return Response({'status': 'success'})
     except Exception as error:
@@ -164,22 +168,21 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
                 user_id = request.GET['user_id']
         except:
             user_id = "unknown"
-    if request.method == 'POST':
-        if request.headers['session'] == session:
+    elif request.method == 'POST':
+        if request.headers['session'] == session and request.headers['session']:
             user_details = login_data
+            print("here",request.headers['session'])
         else: 
             user_details= {"user_id" : "unknown"}
+        print(user_details)
         photo_uid = json.loads(request.headers['photouid'])
         photo_owner = users.objects.get(user_id = photo_uid)
         owner_settings = users_settings.objects.get(user_id = photo_uid)
-        if user_details['user_id'] != 'unknown':
+        if utils.check_is_follower(user_details['user_id'], photo_uid):
             if owner_settings.photo_to_follower :
-                if utils.check_is_follower(user_details['user_id'], photo_uid):
-                    user_id = photo_uid
-                else:
-                    user_id = 'unknown'
+                user_id = photo_uid
             else:
-                user_id = "unknown"
+                user_id = 'unknown'
         else:
             if owner_settings.photo_to_anonymus :
                 user_id = photo_uid
@@ -221,3 +224,6 @@ def logout_validation(request ):
     else:
         return Response({'status' : 'fail'})
 
+@api_view(['POST','GET'])
+def get_session(request):
+    return Response({'session': session})

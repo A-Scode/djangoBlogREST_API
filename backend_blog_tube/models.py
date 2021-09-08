@@ -1,6 +1,10 @@
 from django.db import models
-import json
+import json , string , random
 
+
+def generate_salt():
+        salt = ''.join(random.choices(string.punctuation , k = 6))
+        return salt
 
 
 # Create your models here.
@@ -12,6 +16,10 @@ class users(models.Model):
     password = models.CharField(max_length=200  , null = False)
     join_datetime  = models.DateTimeField(auto_now_add=True , null = False)
     blogs_upload = models.IntegerField(default = 0)
+    salt = models.CharField( null = False ,  default = generate_salt,max_length=6)
+
+
+
 
     def __iter__(self):
         self.list = [('user_id', self.user_id) , 
@@ -37,6 +45,7 @@ class blogs(models.Model):
     blog_title = models.CharField(max_length=100 , null = False )
     user_id = models.ForeignKey(to = users , on_delete= models.CASCADE)
     upload_datetime = models.DateTimeField(auto_now_add= True)
+    discription = models.CharField(max_length=200 , null = True )
     likes = models.IntegerField(default = 0)
     dislikes = models.IntegerField(default = 0)
 
