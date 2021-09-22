@@ -179,7 +179,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     max-width: 400px;" />""")
         elif keys[0] == "Youtube Video":
             elem = (f'''<iframe width="400" height="200" src='https://www.youtube.com/embed/{part[keys[0]]}'
-        title="YouTube video player" frameborder="0" style={{ borderRadius : "5px",justifySelf : 'center',boxShadow:"rgb(0 0 0 / 20%) 0px 0px 5px 3px"}}
+        title="YouTube video player" frameborder="0" style=" border-radius : 5px;justify-self : center;box-shadow:rgb(0 0 0 / 20%) 0px 0px 5px 3px"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen></iframe>''')
         elif keys[0] =="List":
@@ -224,5 +224,5 @@ def edit_title_image(name , file_path,empty = False,title=""):
         img.save(os.path.join(file_path, name))
 def getUID(bid):
     data = blogs.objects.get(blog_id = bid)
-    uid = data.user_id
+    uid = data.user_id.user_id
     return uid

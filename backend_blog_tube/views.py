@@ -227,44 +227,45 @@ def get_session(request):
 
 @api_view(['POST'])
 def upload_blog(request):
-    try:
-        data = json.loads(request.POST['blogDetails'])
-        check_session = request.headers['session']
-        if check_session == session:
-            bid = utils.generate_blog_id()
-            uid = login_data['user_id']
-            print(request.FILES)
-            file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
-            if not os.path.exists(file_path):
-                os.mkdir(file_path)
-            for name in request.FILES:
-                fs = FileSystemStorage(file_path)
-                file = request.FILES[name]
-                if name == "blog_title_image":
-                    name="title."+file.name[-3:]
-                    if os.path.exists(os.path.join(file_path, name)):
-                        os.remove(os.path.join(file_path, name))
-                file_url = fs.save( name , file)
-                if name[:-3] == "title.":
-                    utils.edit_title_image(name , file_path)
-            if data['blog_title_image'] == "":
-                utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
-            utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
-        else:
-            return Response({"status" :"loginRequired"})
-        return Response({"status":"success"})
-    except Exception as e:
-        print(e)
-        return Response({'status': 'fail'})
+    # try:
+    data = json.loads(request.POST['blogDetails'])
+    check_session = request.headers['session']
+    if check_session == session:
+        bid = utils.generate_blog_id()
+        uid = login_data['user_id']
+        print(request.FILES)
+        file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
+        if not os.path.exists(file_path):
+            os.mkdir(file_path)
+        for name in request.FILES:
+            fs = FileSystemStorage(file_path)
+            file = request.FILES[name]
+            if name == "blog_title_image":
+                name="title."+file.name[-3:]
+                if os.path.exists(os.path.join(file_path, name)):
+                    os.remove(os.path.join(file_path, name))
+            file_url = fs.save( name , file)
+            if name[:-3] == "title.":
+                utils.edit_title_image(name , file_path)
+        if data['blog_title_image'] == "":
+            utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
+        utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
+    else:
+        return Response({"status" :"loginRequired"})
+    return Response({"status":"success"})
+    # except Exception as e:
+    #     print(e)
+    #     return Response({'status': 'fail'})
 
 @api_view(['GET'])
 def getBlog(request):
     bid = request.GET['blog_id']
     uid = utils.getUID(bid)
-    data = json.load(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
-    blog = blogs.objects.get(blog_id = bid )
-    blog.views +=1
-    blog.save(['views'])
+    file = open(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
+    data = json.load(file)
+    file.close()
+    blog = blogs.objects.get(blog_id  = bid)
+    blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
     return Response({"status":"success" , "blog": data})
 
 @api_view(['POST'])
