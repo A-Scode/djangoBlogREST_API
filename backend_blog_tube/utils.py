@@ -2,9 +2,11 @@ from .models import users , blogs, comments,followers
 from datetime import datetime
 import json,shutil,random,string
 from cryptography.fernet import Fernet
-from PIL  import Image
+from PIL  import Image, ImageFilter ,ImageDraw , ImageFont
 from django.conf import settings
 from django.core.mail import send_mail
+from urllib import request
+import textwrap
 
 from django.env_variables import *
 declare_variables()
@@ -133,3 +135,94 @@ def check_is_follower(is_follower , of):
 def generate_salt():
         salt = ''.join(random.choices(string.punctuation , k = 6))
         return salt
+
+def generate_elem_list(data ,uid  , bid , preview = False):
+    data_lsit = []
+
+    for part in data:
+        keys = list(part.keys())
+        if keys[0] == "Heading":
+            elem = f"""<h3 className = 'blog_heading' >{part[keys[0]]}</h3>"""
+        elif keys[0] == "Paragraph":
+            elem = f"""<p className = 'blog_para'>{part[keys[0]]}</p>"""
+        elif keys[0] == "Photo":
+            if not preview: elem = (f"""<img className='blog_img' src ='{os.environ['current_url']}/media/{uid}/{bid}/{part['name']}' 
+            style='    border-radius: 5px;
+    width: 90%;
+    justify-self: center;
+    object-fit: contain;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
+    aspect-ratio: 16 / 9;
+    max-width: 400px;'  />""")
+            else : elem = (f"""<img className='blog_img' src ='https://www.harborsidecrossfit.com/wp-content/uploads/revslider/home-demo/sample-image-white.png' 
+            style='    border-radius: 5px;
+    width: 90%;
+    justify-self: center;
+    object-fit: contain;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
+    aspect-ratio: 16 / 9;
+    max-width: 400px;'  />""")
+        elif keys[0]== "Video":
+            if not preview :elem = (f"""<video controls className='blog_video' src ='{os.environ['current_url']}/media/{uid}/{bid}/{part['name']}' style="    border-radius: 5px;
+    width: 90%;
+    justify-self: center;
+    object-fit: contain;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
+    aspect-ratio: 16 / 9;
+    max-width: 400px;" />""")
+            else:elem = (f"""<video controls className='blog_video' src ='http://techslides.com/demos/sample-videos/small.mp4' style="    border-radius: 5px;
+    width: 90%;
+    justify-self: center;
+    object-fit: contain;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
+    aspect-ratio: 16 / 9;
+    max-width: 400px;" />""")
+        elif keys[0] == "Youtube Video":
+            elem = (f'''<iframe width="400" height="200" src='https://www.youtube.com/embed/{part[keys[0]]}'
+        title="YouTube video player" frameborder="0" style={{ borderRadius : "5px",justifySelf : 'center',boxShadow:"rgb(0 0 0 / 20%) 0px 0px 5px 3px"}}
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+        allowfullscreen></iframe>''')
+        elif keys[0] =="List":
+            elem = "<ul>"
+            for i in part[keys[0]]:
+                elem += f"<li>{i}</li>"
+            elem += "</ul>"
+        data_lsit.append(elem)
+    return data_lsit
+
+
+def generate_blog(data , uid  , bid ,file_path ,details):
+    blog_elem_list = generate_elem_list(data ,uid,bid)
+    file = open(os.path.join(file_path,f"blog_{bid}.json"),'w')
+    file.write(json.dumps(blog_elem_list,indent= 4))
+    file.close()
+    user = users.objects.get(user_id = uid)
+    blog = blogs(blog_id = bid ,user_id = user, blog_title = details['title'],discription = details['discription'])
+    users.objects.filter(user_id = uid).update(blogs_upload= user.blogs_upload+1)
+    blog.save()
+
+def edit_title_image(name , file_path,empty = False,title=""):
+    if not empty:
+        img = Image.open(os.path.join(file_path,name))
+        img_w , img_h = img.size
+        back_img_h = (img_w*(9/16))
+        back_img_box = (0,int((img_h-back_img_h)/2) ,img_w,int(((img_h-back_img_h)/2)+back_img_h))
+        back_img = img.crop(back_img_box)
+        back_img = back_img.resize((int(img_h*(16/9)), img_h))
+        back_img = back_img.filter(ImageFilter.GaussianBlur(3))
+        back_img.paste(img,( int((back_img.size[0]-img_w)/2),0))
+        back_img.save(os.path.join(file_path,name)[:-3]+"png")
+    else :
+        img = request.urlretrieve("https://picsum.photos/1600/900",os.path.join(file_path , "title.png"))
+        img = Image.open(os.path.join(file_path , "title.png"))
+        img = img.filter(ImageFilter.GaussianBlur(3))
+        t1 = ImageDraw.Draw(img)
+        font = ImageFont.truetype('Prompt-BlackItalic.ttf' ,170)
+        # font.set_variation_by_name('Italic')
+        title = textwrap.fill(title ,width=14)
+        t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='left')
+        img.save(os.path.join(file_path, name))
+def getUID(bid):
+    data = blogs.objects.get(blog_id = bid)
+    uid = data.user_id
+    return uid

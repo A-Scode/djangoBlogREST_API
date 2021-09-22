@@ -48,6 +48,7 @@ class blogs(models.Model):
     discription = models.CharField(max_length=200 , null = True )
     likes = models.IntegerField(default = 0)
     dislikes = models.IntegerField(default = 0)
+    views = models.IntegerField(default=0)
 
     def __iter__(self):
         self.list = [('blog_id', self.blog_id) , 
@@ -77,6 +78,8 @@ class comments(models.Model):
     user_id = models.ForeignKey(to = users , on_delete=models.CASCADE)
     upload_datetime = models.DateTimeField(auto_now_add=True)
     blog_id = models.ForeignKey(to = blogs, null = False , on_delete = models.CASCADE)
+    reply_of = models.CharField(max_length=10 , null= True)
+    reply_at = models.CharField(max_length=10, null= True)
 
     def __iter__(self):
         self.list = [('comment_id', self.comment_id) , 

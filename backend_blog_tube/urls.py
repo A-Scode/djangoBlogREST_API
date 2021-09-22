@@ -14,6 +14,8 @@ urlpatterns = [
     path('getprofilephoto', views.get_profile_photo),
     path('userlist' , views.user_list),
     path('logout' , views.logout_validation),
-    path('getSessionId' , views.get_session)
+    path('getSessionId' , views.get_session),
+    path('uploadBlog',views.upload_blog),
+    path('blogPreview' , views.getBlog_preview)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

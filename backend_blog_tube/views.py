@@ -24,40 +24,40 @@ def test(request ):
 @api_view(['POST']) 
 def signup(request):
     global user ,otp_signup
-    # try:
-    data = json.loads(request.headers['userData'])
-    if utils.check_email(data['email']):
-        uid = utils.generate_user_id()
-        salt  = utils.generate_salt()
-        user = users( 
-            user_id = uid ,
-        user_name = data['username'],
-        email = data['email'],
-        password = utils.encode_fernet(data['password']+salt),
-        salt = salt
-        )
+    try:
+        data = json.loads(request.headers['userData'])
+        if utils.check_email(data['email']):
+            uid = utils.generate_user_id()
+            salt  = utils.generate_salt()
+            user = users( 
+                user_id = uid ,
+            user_name = data['username'],
+            email = data['email'],
+            password = utils.encode_fernet(data['password']+salt),
+            salt = salt
+            )
 
-        image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
-        if not os.path.exists(image_path):
-            os.makedirs(image_path)
-        if len(request.FILES) != 0:
-            fs =  FileSystemStorage(image_path)
-            file = request.FILES['image']
-            file_name  = file.name
-            file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
-            print(file_url)
-            utils.image_resize(image_path , file_url)
+            image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
+            if not os.path.exists(image_path):
+                os.makedirs(image_path)
+            if len(request.FILES) != 0:
+                fs =  FileSystemStorage(image_path)
+                file = request.FILES['image']
+                file_name  = file.name
+                file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
+                print(file_url)
+                utils.image_resize(image_path , file_url)
 
-        otp_signup = utils.generate_otp()
-        utils.send_otp(otp_signup , data['username'], data['email'])
-        print("sucess")
-        return Response({'status': "otp"})
-    
-    else:
-        return Response({'status':'exists'})
-    # except Exception as error :
-    #     print(error)
-    #     return Response({'status' : "fail"})
+            otp_signup = utils.generate_otp()
+            utils.send_otp(otp_signup , data['username'], data['email'])
+            print("sucess")
+            return Response({'status': "otp"})
+        
+        else:
+            return Response({'status':'exists'})
+    except Exception as error :
+        print(error)
+        return Response({'status' : "fail"})
 
 @api_view(['POST'])
 def otp_validation(request):
@@ -171,10 +171,8 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
     elif request.method == 'POST':
         if request.headers['session'] == session and request.headers['session']:
             user_details = login_data
-            print("here",request.headers['session'])
         else: 
             user_details= {"user_id" : "unknown"}
-        print(user_details)
         photo_uid = json.loads(request.headers['photouid'])
         photo_owner = users.objects.get(user_id = photo_uid)
         owner_settings = users_settings.objects.get(user_id = photo_uid)
@@ -190,7 +188,6 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
                 user_id = "unknown"
 
     path =  utils.get_profile_photo_path(user_id)
-    print(path)
     img = open(path , 'rb')
     img_data = img.read()
     type = "image/svg+xml" if path[-3 :]== "svg" else "image/*"
@@ -227,3 +224,59 @@ def logout_validation(request ):
 @api_view(['POST','GET'])
 def get_session(request):
     return Response({'session': session})
+
+@api_view(['POST'])
+def upload_blog(request):
+    try:
+        data = json.loads(request.POST['blogDetails'])
+        check_session = request.headers['session']
+        if check_session == session:
+            bid = utils.generate_blog_id()
+            uid = login_data['user_id']
+            print(request.FILES)
+            file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
+            if not os.path.exists(file_path):
+                os.mkdir(file_path)
+            for name in request.FILES:
+                fs = FileSystemStorage(file_path)
+                file = request.FILES[name]
+                if name == "blog_title_image":
+                    name="title."+file.name[-3:]
+                    if os.path.exists(os.path.join(file_path, name)):
+                        os.remove(os.path.join(file_path, name))
+                file_url = fs.save( name , file)
+                if name[:-3] == "title.":
+                    utils.edit_title_image(name , file_path)
+            if data['blog_title_image'] == "":
+                utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
+            utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
+        else:
+            return Response({"status" :"loginRequired"})
+        return Response({"status":"success"})
+    except Exception as e:
+        print(e)
+        return Response({'status': 'fail'})
+
+@api_view(['GET'])
+def getBlog(request):
+    bid = request.GET['blog_id']
+    uid = utils.getUID(bid)
+    data = json.load(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
+    blog = blogs.objects.get(blog_id = bid )
+    blog.views +=1
+    blog.save(['views'])
+    return Response({"status":"success" , "blog": data})
+
+@api_view(['POST'])
+def getBlog_preview(request):
+    try:
+        blog = json.loads(request.POST['blog'])
+        check_session = request.headers['session']
+        if check_session == session:
+            blog_elem_list = utils.generate_elem_list(blog , '' , '' , preview=True)
+            return Response({"status": "success" , "hydratedBlog" : blog_elem_list })
+        else : 
+            return Response({"status" : "loginRequired"})
+    except Exception as e:
+        print(e)
+        return Response({"status":"fail"})
