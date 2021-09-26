@@ -17,6 +17,10 @@ urlpatterns = [
     path('getSessionId' , views.get_session),
     path('uploadBlog',views.upload_blog),
     path('blogPreview' , views.getBlog_preview),
-    path('getBlog' , views.getBlog)
+    path('getBlog' , views.getBlog),
+    path('checkReviewr',views.check_reviewer),
+    path('Blogreview' , views.blog_review),
+    path('uploadComment', views.upload_comment),
+    path('getComments' , views.get_comments)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)

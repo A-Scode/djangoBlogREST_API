@@ -6,7 +6,7 @@
     "<h3 className = 'blog_heading' >Video</h3>",
     "<video controls className='blog_video' src ='http://localhost:8000/media/UID-4/BID-7/white_breasted_nuthatch_bird_feeding_685.mp4' style=\"    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 400px;\" />",
     "<h3 className = 'blog_heading' >Youtube Video</h3>",
-    "<iframe width=\"400\" height=\"200\" src='https://www.youtube.com/embed/AQm2srSzC4c'\n        title=\"YouTube video player\" frameborder=\"0\" style=\" border-radius : 5px;justify-self : center;box-shadow:rgb(0 0 0 / 20%) 0px 0px 5px 3px\"\n        allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" \n        allowfullscreen></iframe>",
+    "<iframe width=\"400\" height=\"200\" src='https://www.youtube.com/embed/AQm2srSzC4c'\n        title=\"YouTube video player\" frameborder=\"0\" style=\"border-radius: 5px;justify-self: center; box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px; aspect-ratio: 16 / 9;width: inherit;max-width: 500px;\"\n        allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" \n        allowfullscreen></iframe>",
     "<h3 className = 'blog_heading' >List</h3>",
     "<ul><li>this</li><li>is</li><li>list</li><li>of</li><li>items</li></ul>",
     "<h3 className = 'blog_heading' >Ending Para</h3>",

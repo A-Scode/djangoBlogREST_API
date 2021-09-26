@@ -18,9 +18,6 @@ class users(models.Model):
     blogs_upload = models.IntegerField(default = 0)
     salt = models.CharField( null = False ,  default = generate_salt,max_length=6)
 
-
-
-
     def __iter__(self):
         self.list = [('user_id', self.user_id) , 
         ('user_name' , self.user_name),
@@ -49,6 +46,7 @@ class blogs(models.Model):
     likes = models.IntegerField(default = 0)
     dislikes = models.IntegerField(default = 0)
     views = models.IntegerField(default=0)
+    reviewers = models.JSONField(default = json.dumps({}))
 
     def __iter__(self):
         self.list = [('blog_id', self.blog_id) , 
@@ -76,10 +74,9 @@ class comments(models.Model):
     ''' comment_id , user_id , upload_id , upload_datetime , reply_to(user_id , null= True)  , blog_id'''
     comment_id = models.CharField(max_length=10 , primary_key= True)
     user_id = models.ForeignKey(to = users , on_delete=models.CASCADE)
+    comment = models.CharField(max_length=1000 , null=False)
     upload_datetime = models.DateTimeField(auto_now_add=True)
     blog_id = models.ForeignKey(to = blogs, null = False , on_delete = models.CASCADE)
-    reply_of = models.CharField(max_length=10 , null= True)
-    reply_at = models.CharField(max_length=10, null= True)
 
     def __iter__(self):
         self.list = [('comment_id', self.comment_id) , 
@@ -106,7 +103,7 @@ class settings(models.Model):
                          ( False,"doesn't show to followers")
                      ]
 
-    user_id = models.ForeignKey(to = 'users' , on_delete = models.CASCADE)
+    user_id = models.ForeignKey(to = users , on_delete = models.CASCADE)
     photo_to_anonymus = models.BooleanField(choices= anonymus_choices , default= True)
     email_to_anonymus = models.BooleanField(choices= anonymus_choices , default= True)
     photo_to_follower = models.BooleanField(choices= follower_choices , default= True)
@@ -134,10 +131,10 @@ class settings(models.Model):
 
 
 class followers(models.Model):
-    user_id = models.ForeignKey(to = "users" , on_delete = models.CASCADE)
+    user_id = models.ForeignKey(to = users , on_delete = models.CASCADE)
     followers = models.JSONField(default = json.dumps([]))
 
 class followings(models.Model):
-    user_id = models.ForeignKey(to="users" , on_delete=models.CASCADE)
+    user_id = models.ForeignKey(to=users , on_delete=models.CASCADE)
     followings = models.JSONField( default = json.dumps([]))
 

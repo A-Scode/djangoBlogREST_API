@@ -1,4 +1,4 @@
-from .models import users , blogs, comments,followers
+from .models import users , blogs, comments,followers,settings as user_settings
 from datetime import datetime
 import json,shutil,random,string
 from cryptography.fernet import Fernet
@@ -23,7 +23,7 @@ def generate_blog_id():
 
 def generate_comment_id():
     no_of_comments = len(comments.objects.all())
-    comment_id = 'BID-'+str(no_of_comments+1)
+    comment_id = 'CID-'+str(no_of_comments+1)
     return comment_id
 
 def serialize( modelObject ):
@@ -153,7 +153,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 400px;'  />""")
+    max-width: 500px;'  />""")
             else : elem = (f"""<img className='blog_img' src ='https://www.harborsidecrossfit.com/wp-content/uploads/revslider/home-demo/sample-image-white.png' 
             style='    border-radius: 5px;
     width: 90%;
@@ -161,7 +161,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 400px;'  />""")
+    max-width: 500px;'  />""")
         elif keys[0]== "Video":
             if not preview :elem = (f"""<video controls className='blog_video' src ='{os.environ['current_url']}/media/{uid}/{bid}/{part['name']}' style="    border-radius: 5px;
     width: 90%;
@@ -169,17 +169,22 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 400px;" />""")
+    max-width: 500px;" />""")
             else:elem = (f"""<video controls className='blog_video' src ='http://techslides.com/demos/sample-videos/small.mp4' style="    border-radius: 5px;
     width: 90%;
     justify-self: center;
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 400px;" />""")
+    max-width: 500px;" />""")
         elif keys[0] == "Youtube Video":
-            elem = (f'''<iframe width="400" height="200" src='https://www.youtube.com/embed/{part[keys[0]]}'
-        title="YouTube video player" frameborder="0" style=" border-radius : 5px;justify-self : center;box-shadow:rgb(0 0 0 / 20%) 0px 0px 5px 3px"
+            elem = (f'''<iframe src='https://www.youtube.com/embed/{part[keys[0]]}'
+        title="YouTube video player" frameborder="0" style="border-radius: 5px;
+    justify-self: center;
+    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
+    aspect-ratio: 16 / 9;
+    width: inherit;
+    max-width: 500px;"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
         allowfullscreen></iframe>''')
         elif keys[0] =="List":
@@ -226,3 +231,20 @@ def getUID(bid):
     data = blogs.objects.get(blog_id = bid)
     uid = data.user_id.user_id
     return uid
+
+def returnSettings(uid):
+    uid = str(uid)
+    owner_settings = user_settings.objects.get(user_id = uid)
+    return owner_settings
+
+def generate_comment_list(query_set):
+    comment_list = []
+    for comment in query_set:
+        data = {}
+        data['cid'] = comment.comment_id
+        data['uid']= comment.user_id.user_id
+        data['name'] = comment.user_id.user_name
+        data['text'] = comment.comment
+        data['upload_datetime'] = comment.upload_datetime.strftime("%a %d/%m/%Y %T")
+        comment_list.append(data)
+    return comment_list

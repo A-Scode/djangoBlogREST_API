@@ -1,0 +1,7 @@
+[
+    "<h3 className = 'blog_heading' >head</h3>",
+    "<p className = 'blog_para'>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Rutrum tellus pellentesque eu tincidunt tortor. Metus vulputate eu scelerisque felis imperdiet proin fermentum leo vel. Cras semper auctor neque vitae tempus quam pellentesque. Dignissim convallis aenean et tortor at. Scelerisque felis imperdiet proin fermentum leo vel orci porta. Risus nec feugiat in fermentum posuere urna nec tincidunt. Imperdiet massa tincidunt nunc pulvinar sapien et ligula ullamcorper. Lorem mollis aliquam ut porttitor leo a diam. Quis enim lobortis scelerisque fermentum. Faucibus vitae aliquet nec ullamcorper sit amet. Laoreet non curabitur gravida arcu ac. Commodo quis imperdiet massa tincidunt nunc. Pulvinar sapien et ligula ullamcorper malesuada proin\u00a0</p>",
+    "<ul><li>List</li><li>of</li><li>\ud83d\udef9\ud83d\udeb2</li></ul>",
+    "<h3 className = 'blog_heading' >Happy Diwali\ud83e\udd20\ud83e\udd73</h3>",
+    "<img className='blog_img' src ='http://localhost:8000/media/UID-4/BID-12/Acer_Wallpaper_02_5000x2813.jpg' \n            style='    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;'  />"
+]

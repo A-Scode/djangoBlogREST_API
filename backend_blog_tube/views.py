@@ -1,3 +1,4 @@
+from datetime import datetime
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,renderer_classes
@@ -159,23 +160,16 @@ def change_password(request):
         print(error)
         return Response({'status' : 'fail'})
 
-@api_view(['GET','POST'])
+@api_view(['POST'])
 @renderer_classes([StaticHTMLRenderer])
 def get_profile_photo(request):     #Must send user details for POST if unkown than userID unknown
-    if request.method == 'GET':
-        try:
-            if request.GET['user_id'] == login_data['user_id']:
-                user_id = request.GET['user_id']
-        except:
-            user_id = "unknown"
-    elif request.method == 'POST':
-        if request.headers['session'] == session and request.headers['session']:
-            user_details = login_data
-        else: 
-            user_details= {"user_id" : "unknown"}
-        photo_uid = json.loads(request.headers['photouid'])
-        photo_owner = users.objects.get(user_id = photo_uid)
-        owner_settings = users_settings.objects.get(user_id = photo_uid)
+    if request.headers['session'] == session and request.headers['session'] :
+        user_details = login_data
+    else: 
+        user_details= {"user_id" : "unknown"}
+    photo_uid = request.headers['photouid']
+    if photo_uid != "undefined":
+        owner_settings = utils.returnSettings(photo_uid)
         if utils.check_is_follower(user_details['user_id'], photo_uid):
             if owner_settings.photo_to_follower :
                 user_id = photo_uid
@@ -186,6 +180,8 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
                 user_id = photo_uid
             else : 
                 user_id = "unknown"
+    else : 
+        user_id = "unknown"
 
     path =  utils.get_profile_photo_path(user_id)
     img = open(path , 'rb')
@@ -259,14 +255,26 @@ def upload_blog(request):
 
 @api_view(['GET'])
 def getBlog(request):
-    bid = request.GET['blog_id']
-    uid = utils.getUID(bid)
-    file = open(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
-    data = json.load(file)
-    file.close()
-    blog = blogs.objects.get(blog_id  = bid)
-    blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
-    return Response({"status":"success" , "blog": data})
+    try:
+        bid = request.GET['blog_id']
+        uid = utils.getUID(bid)
+        blogger = users.objects.get(user_id = uid)
+        user_details = {}
+        user_details['user_id'] = blogger.user_id
+        user_details['user_name'] = blogger.user_name
+        user_details['total_blogs'] = blogger.blogs_upload
+        user_details['followers_count'] = len(json.loads(followers.objects.get(user_id  = blogger.user_id).followers))
+        file = open(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
+        data = json.load(file)
+        file.close()
+        blog = blogs.objects.get(blog_id  = bid)
+        blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
+        return Response({"status":"success" , "blog": data ,"title": blog.blog_title ,
+        "likes":blog.likes ,"dislikes":blog.dislikes , "views":blog.views ,"image_url": f"{os.environ['current_url']}/media/{uid}/{bid}/title.png",
+                    "blogger_details":user_details})
+    except Exception as e:
+        print(e)
+        return Response({"status":"fail"})
 
 @api_view(['POST'])
 def getBlog_preview(request):
@@ -281,3 +289,72 @@ def getBlog_preview(request):
     except Exception as e:
         print(e)
         return Response({"status":"fail"})
+@api_view(['GET'])
+def check_reviewer(request):
+    bid = request.GET['bid']
+    uid = request.GET['uid']
+    blog = blogs.objects.get(blog_id = bid)
+    reviewers = json.loads(blog.reviewers)
+    if uid in reviewers:
+        return Response({'status' : 'success' , 'isreviewer':reviewers[uid]})
+    else:
+        return Response({'status' : 'success' , 'isreviewer':"not yet"})
+
+@api_view(['POST'])
+def blog_review(request):
+    uid = request.POST['uid']
+    bid = request.POST['bid']
+    review = request.POST['review']
+    print(review)
+    blog = blogs.objects.get(blog_id = bid)
+    reviewers = json.loads(blog.reviewers)
+    if review == "like":
+        if uid in reviewers and reviewers[uid]== "dislike":
+            blogs.objects.filter(blog_id = bid).update(dislikes = blog.dislikes-1)
+        if uid in reviewers and reviewers[uid]== "like":pass
+        else:
+            reviewers[uid]=review    
+            blogs.objects.filter(blog_id = bid).update(reviewers=json.dumps(reviewers) ,likes = blog.likes+1)
+            return Response({'status':'success' ,'details': {"likes" : blog.likes+1 ,
+             "dislikes":blog.dislikes-1 , "views" : blog.views}})
+
+    elif review == "dislike":
+        if uid in reviewers and reviewers[uid]== "like":
+            blogs.objects.filter(blog_id = bid).update(likes = blog.likes-1)
+        if uid in reviewers and reviewers[uid]== "dislike":pass
+        else:
+            reviewers[uid]=review
+            blogs.objects.filter(blog_id = bid).update(reviewers=json.dumps(reviewers) ,dislikes = blog.dislikes+1)
+            return Response({'status':'success' ,
+            'details': {"likes" : blog.likes-1 ,
+             "dislikes":blog.dislikes+1 , "views" : blog.views}})
+
+
+    return Response({'status':'success' ,
+    'details': {"likes" : blog.likes , "dislikes":blog.dislikes ,
+     "views" : blog.views}})
+
+@api_view(['POST'])
+def upload_comment(request):
+    try:
+        check_session = request.headers['session']
+        if session == check_session:
+            comment = request.POST['comment']
+            c_user = users.objects.get(user_id = request.POST['user_id'])
+            blog_id = blogs.objects.get(blog_id =request.POST['blog_id'])
+            cid = utils.generate_comment_id()
+            comment_model = comments(comment_id = cid , user_id = c_user , comment = comment, blog_id=blog_id )
+            comment_model.save()
+            return Response({"status":"success"  , "new_comment" : {"cid" :cid, "uid":c_user.user_id ,"name" :c_user.user_name, "text" :comment,"upload_datetime" :datetime.now().strftime("%a %d/%m/%Y %T")}})
+        else:
+            return Response({"status":"login_required"})
+    except Exception as e:
+        print(e)
+        return Response({"status":"fail"})
+
+@api_view(['POST'])
+def get_comments(request):
+    blog_id = request.POST['blog_id']
+    comments_obj_list = comments.objects.filter(blog_id = blog_id).order_by('-upload_datetime')
+    comment_list = utils.generate_comment_list(comments_obj_list)
+    return Response({"status" :"success" , "comment_list" : comment_list})
