@@ -241,8 +241,11 @@ def upload_blog(request):
                 if os.path.exists(os.path.join(file_path, name)):
                     os.remove(os.path.join(file_path, name))
             file_url = fs.save( name , file)
+            file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
             if name[:-3] == "title.":
                 utils.edit_title_image(name , file_path)
+            elif file_type == 'image':
+                utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
         if data['blog_title_image'] == "":
             utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
         utils.generate_blog(data['blog'],uid , bid ,file_path ,data )

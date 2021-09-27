@@ -14,7 +14,7 @@ class users(models.Model):
     user_name = models.CharField(max_length= 100 , null = False)
     email = models.EmailField(max_length= 100 , null = False, default = None)
     password = models.CharField(max_length=200  , null = False)
-    join_datetime  = models.DateTimeField(auto_now_add=True , null = False)
+    join_datetime  = models.DateTimeField(auto_now=True , null = False)
     blogs_upload = models.IntegerField(default = 0)
     salt = models.CharField( null = False ,  default = generate_salt,max_length=6)
 
@@ -41,7 +41,7 @@ class blogs(models.Model):
     blog_id = models.CharField(max_length=10 , primary_key= True )
     blog_title = models.CharField(max_length=100 , null = False )
     user_id = models.ForeignKey(to = users , on_delete= models.CASCADE)
-    upload_datetime = models.DateTimeField(auto_now_add= True)
+    upload_datetime = models.DateTimeField( auto_now=True)
     discription = models.CharField(max_length=200 , null = True )
     likes = models.IntegerField(default = 0)
     dislikes = models.IntegerField(default = 0)
@@ -75,7 +75,7 @@ class comments(models.Model):
     comment_id = models.CharField(max_length=10 , primary_key= True)
     user_id = models.ForeignKey(to = users , on_delete=models.CASCADE)
     comment = models.CharField(max_length=1000 , null=False)
-    upload_datetime = models.DateTimeField(auto_now_add=True)
+    upload_datetime = models.DateTimeField(auto_now=True)
     blog_id = models.ForeignKey(to = blogs, null = False , on_delete = models.CASCADE)
 
     def __iter__(self):

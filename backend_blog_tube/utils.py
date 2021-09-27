@@ -6,7 +6,7 @@ from PIL  import Image, ImageFilter ,ImageDraw , ImageFont
 from django.conf import settings
 from django.core.mail import send_mail
 from urllib import request
-import textwrap
+import textwrap, magic
 
 from django.env_variables import *
 declare_variables()
@@ -216,13 +216,15 @@ def edit_title_image(name , file_path,empty = False,title=""):
         back_img = back_img.resize((int(img_h*(16/9)), img_h))
         back_img = back_img.filter(ImageFilter.GaussianBlur(3))
         back_img.paste(img,( int((back_img.size[0]-img_w)/2),0))
+        back_img = back_img.resize((500 , 281))
         back_img.save(os.path.join(file_path,name)[:-3]+"png")
+        os.remove(os.path.join(file_path , name))
     else :
-        img = request.urlretrieve("https://picsum.photos/1600/900",os.path.join(file_path , "title.png"))
+        img = request.urlretrieve("https://picsum.photos/500/281",os.path.join(file_path , "title.png"))
         img = Image.open(os.path.join(file_path , "title.png"))
         img = img.filter(ImageFilter.GaussianBlur(3))
         t1 = ImageDraw.Draw(img)
-        font = ImageFont.truetype('Prompt-BlackItalic.ttf' ,170)
+        font = ImageFont.truetype('Prompt-BlackItalic.ttf' ,40)
         # font.set_variation_by_name('Italic')
         title = textwrap.fill(title ,width=14)
         t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='left')
@@ -248,3 +250,12 @@ def generate_comment_list(query_set):
         data['upload_datetime'] = comment.upload_datetime.strftime("%a %d/%m/%Y %T")
         comment_list.append(data)
     return comment_list
+
+def getFileType(filepath):
+    mime = magic.from_file(filepath , mime = True)
+    return mime.split('/')[0]
+
+def compress_img(filepath):
+    img = Image.open(filepath)
+    img = img.resize((400 , 225))
+    img.save(filepath)

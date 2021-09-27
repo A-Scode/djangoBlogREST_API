@@ -1,7 +1,0 @@
-[
-    "<h3 className = 'blog_heading' >new Blog</h3>",
-    "<p className = 'blog_para'>Aliquet bibendum enim facilisis gravida neque convallis a cras semper. Neque egestas congue quisque egestas diam in arcu. Amet commodo nulla facilisi nullam vehicula ipsum a arcu cursus. Nam libero justo laoreet sit amet. Mauris rhoncus aenean vel elit scelerisque mauris. Amet volutpat consequat mauris nunc congue nisi vitae suscipit.\u00a0</p>",
-    "<iframe src='https://www.youtube.com/embed/AQm2srSzC4c'\n        title=\"YouTube video player\" frameborder=\"0\" style=\"border-radius: 5px;\n    justify-self: center;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    width: inherit;\n    max-width: 500px;\"\n        allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" \n        allowfullscreen></iframe>",
-    "<img className='blog_img' src ='http://localhost:8000/media/UID-4/BID-9/profile.jpg' \n            style='    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;'  />",
-    "<ul><li>l</li><li>i</li><li>s</li><li>t</li></ul>"
-]
