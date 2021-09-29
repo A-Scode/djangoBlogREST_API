@@ -1,3 +1,5 @@
+from os import environ
+import urllib
 from .models import users , blogs, comments,followers,settings as user_settings
 from datetime import datetime
 import json,shutil,random,string
@@ -5,8 +7,10 @@ from cryptography.fernet import Fernet
 from PIL  import Image, ImageFilter ,ImageDraw , ImageFont
 from django.conf import settings
 from django.core.mail import send_mail
-from urllib import request
-import textwrap, magic
+from urllib import request,error
+
+
+import textwrap, mimetypes,ftplib
 
 from django.env_variables import *
 declare_variables()
@@ -85,7 +89,6 @@ def check_email(email):
         users.objects.get(email = email)
         return False
     except Exception as e:
-        print(e)
         return True
 
 def image_resize(folder_path , img_name):
@@ -97,7 +100,10 @@ def image_resize(folder_path , img_name):
     resized_img = img.resize((new_width, new_height))
     resized_img.convert('RGB')
     resized_img.save(os.path.join(folder_path, "profile.jpg") )
-    # img.save(os.path.join(folder_path,'profileLarge.jpg'))
+    img.save(os.path.join(folder_path , 'profileLarge.jpg'))
+    img.close()
+    resized_img.close()
+    os.remove(os.path.join(folder_path , img_name))
 
 def generate_otp():
     otp = str(random.randrange(1000,10000))
@@ -117,13 +123,13 @@ def create_session():
     return session_id
 
 def get_profile_photo_path(user_id):
-    path = os.path.join(settings.MEDIA_ROOT ,user_id, 'profile' , 'profile.jpg' )
     unknown_user = os.path.join(settings.MEDIA_ROOT ,"assets","username.svg")
-
-    if os.path.exists(path):
-        return path
-    else:
-        return unknown_user
+    try:
+        photo = urllib.request.urlopen(f'ftp://{os.environ["ftp_username"]}:{os.environ["ftp_pass"]}@{os.environ["ftp_provider"]}/htdocs/BlogTube/{user_id}/profile.jpg')
+        return photo , photo.info().get_content_type()
+    except Exception as e:
+        photo = open(unknown_user , 'rb')
+        return photo , 'image/svg+xml'
 
 def check_is_follower(is_follower , of):
     check_with = json.loads(followers.objects.get(user_id = of).followers)
@@ -146,14 +152,14 @@ def generate_elem_list(data ,uid  , bid , preview = False):
         elif keys[0] == "Paragraph":
             elem = f"""<p className = 'blog_para'>{part[keys[0]]}</p>"""
         elif keys[0] == "Photo":
-            if not preview: elem = (f"""<img className='blog_img' src ='{os.environ['current_url']}/media/{uid}/{bid}/{part['name']}' 
+            if not preview: elem = (f"""<img className='blog_img' src ='{os.environ['current_url']}/backend_api/getMedia?media={uid}/{bid}/{part['name']}' 
             style='    border-radius: 5px;
     width: 90%;
     justify-self: center;
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 500px;'  />""")
+    max-width: 500px;' loading="lazy" />""")
             else : elem = (f"""<img className='blog_img' src ='https://www.harborsidecrossfit.com/wp-content/uploads/revslider/home-demo/sample-image-white.png' 
             style='    border-radius: 5px;
     width: 90%;
@@ -163,13 +169,13 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     aspect-ratio: 16 / 9;
     max-width: 500px;'  />""")
         elif keys[0]== "Video":
-            if not preview :elem = (f"""<video controls className='blog_video' src ='{os.environ['current_url']}/media/{uid}/{bid}/{part['name']}' style="    border-radius: 5px;
+            if not preview :elem = (f"""<video preload controls className='blog_video' src ='{os.environ['current_url']}/backend_api/getMedia?media={uid}/{bid}/{part['name']}' style="    border-radius: 5px;
     width: 90%;
     justify-self: center;
     object-fit: contain;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
     aspect-ratio: 16 / 9;
-    max-width: 500px;" />""")
+    max-width: 500px;" loading="lazy" />""")
             else:elem = (f"""<video controls className='blog_video' src ='http://techslides.com/demos/sample-videos/small.mp4' style="    border-radius: 5px;
     width: 90%;
     justify-self: center;
@@ -218,6 +224,8 @@ def edit_title_image(name , file_path,empty = False,title=""):
         back_img.paste(img,( int((back_img.size[0]-img_w)/2),0))
         back_img = back_img.resize((500 , 281))
         back_img.save(os.path.join(file_path,name)[:-3]+"png")
+        img.close()
+        back_img.close()
         os.remove(os.path.join(file_path , name))
     else :
         img = request.urlretrieve("https://picsum.photos/500/281",os.path.join(file_path , "title.png"))
@@ -227,8 +235,9 @@ def edit_title_image(name , file_path,empty = False,title=""):
         font = ImageFont.truetype('Prompt-BlackItalic.ttf' ,40)
         # font.set_variation_by_name('Italic')
         title = textwrap.fill(title ,width=14)
-        t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='left')
+        t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='center')
         img.save(os.path.join(file_path, name))
+        img.close()
 def getUID(bid):
     data = blogs.objects.get(blog_id = bid)
     uid = data.user_id.user_id
@@ -252,10 +261,103 @@ def generate_comment_list(query_set):
     return comment_list
 
 def getFileType(filepath):
-    mime = magic.from_file(filepath , mime = True)
+    mime = mimetypes.guess_type(filepath)[0]
     return mime.split('/')[0]
 
 def compress_img(filepath):
+    aspect_ratio = 16/9
     img = Image.open(filepath)
-    img = img.resize((400 , 225))
+    img_w ,img_h =  img.size
+    img_ratio = img_w/img_h
+    if img_ratio < aspect_ratio:
+        new_img_h = 225
+        new_img_w = (225*img_w)/img_h
+    elif img_ratio > aspect_ratio:
+        new_img_w = 400
+        new_img_h = (400*img_h)/img_w
+    else: 
+        new_img_w = 400
+        new_img_h = 225
+
+    img = img.resize((int(new_img_w) , int(new_img_h)))
     img.save(filepath)
+
+def ftpopen(path='/'):
+    ftp = ftplib.FTP(os.environ['ftp_provider'])
+    ftp.encoding = 'utf-8'
+    ftp.login(os.environ['ftp_username'] , os.environ['ftp_pass'])
+    if path != '/':ftp.cwd(path)
+    return ftp
+def ftpclose(ftp):
+    ftp.close()
+
+def ftp_del(path):
+    ftp = ftpopen()
+    ftp.delete(path)
+    ftpclose(ftp)
+
+def ftp_retrive_file(path):
+    path = path.split('/')
+    filename = path.pop()
+    init_path = '/'.join(path)
+
+    file_data = b''
+    mime=''
+    try:
+        num = 1
+        while True:
+            file = request.urlopen(
+            f"ftp://{os.environ['ftp_username']}:{os.environ['ftp_pass']}@{os.environ['ftp_provider']}/htdocs/BlogTube/{init_path}/__part{num}__{filename}"
+                )
+            file_data+= file.read()
+            mime = file.info().get_content_type()
+            file.close()
+            num+= 1
+    except error.URLError :
+        return file_data ,mime
+
+def blog_files_upload_to_ftp(uid,bid , filepath):
+    ftp = ftpopen(f'/htdocs/BlogTube/{uid}')
+    ftp.mkd(bid)
+    ftp.cwd(bid)
+    files = os.walk(filepath)
+    files = next(files)[-1]
+    files.remove(f'blog_{bid}.json')
+    file2 = open(os.path.join(os.getcwd(),'compFile.bin') , 'wb+')
+    for filename in files:
+        file = open(os.path.join(filepath,filename) , 'rb')
+        num = 1
+        while True:
+            data = file.read(10485760)
+            if data != b'':
+                file2.write(data)
+                file2.flush()
+                file2.seek(0)
+                ftp.storbinary(f'STOR __part{num}__{filename}',file2)
+                file2.seek(0)
+                file2.write(b'')
+            else:break
+            num+=1
+        file.close()
+        os.remove(os.path.join(filepath,filename))
+
+    file2.close()
+    os.remove(os.path.join(os.getcwd(),'compFile.bin'))
+    ftpclose(ftp)
+
+def ftp_upload_profile_photo(uid):
+    ftp = ftpopen('/htdocs/BlogTube')
+    ftp.mkd(uid)
+    ftp.cwd(uid)
+    profile_path = os.path.join(settings.MEDIA_ROOT , uid , 'profile','profile.jpg')
+    large_path = os.path.join(settings.MEDIA_ROOT , uid , 'profile','profileLarge.jpg')
+    if os.path.exists( profile_path ):
+        profile_photo  = open(profile_path , 'rb')
+        large_photo  = open(large_path , 'rb')
+        ftp.storbinary('STOR profile.jpg' , profile_photo)
+        ftp.storbinary('STOR profile.jpg' , large_photo)
+        profile_photo.close()
+        large_photo.close()
+    ftpclose(ftp)
+    os.remove(profile_path)
+    os.remove(large_path)

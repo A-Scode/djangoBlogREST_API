@@ -1,11 +1,12 @@
 from datetime import datetime
+import mimetypes
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,renderer_classes
 from rest_framework.renderers import StaticHTMLRenderer
 from .models import followings, users, blogs, comments,settings as users_settings,followers
 from . import utils
-import json,os,shutil
+import json,os,shutil,urllib.request
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
@@ -62,28 +63,29 @@ def signup(request):
 
 @api_view(['POST'])
 def otp_validation(request):
-    try:
-        data = request.headers
-        if (data['otp'] == otp_signup):
-            user_id = user.user_id
-            user.save()
-            user.refresh_from_db()
-            user_settings = users_settings(user_id = user)
-            user_settings.save()
-            user_follower = followers(user_id = user)
-            user_follower.save()
-            user_following = followings(user_id = user)
-            user_following.save()
-            return Response({'staus': "success"})
-        else:
-            print('fail OTP')
-            image_path = os.path.join(os.getcwd(), "uploaded_media" , user.user_id )
-            if os.path.exists(image_path):
-                shutil.rmtree(os.path.join(settings.MEDIA_ROOT, user.user_id))
-            return Response({'status' : "fail"})
-    except Exception as e:
-        print(e)
+    # try:
+    data = request.headers
+    if (data['otp'] == otp_signup):
+        user_id = user.user_id
+        user.save()
+        user.refresh_from_db()
+        user_settings = users_settings(user_id = user)
+        user_settings.save()
+        user_follower = followers(user_id = user)
+        user_follower.save()
+        user_following = followings(user_id = user)
+        user_following.save()
+        utils.ftp_upload_profile_photo(user_id)
+        return Response({'staus': "success"})
+    else:
+        print('fail OTP')
+        image_path = os.path.join(os.getcwd(), "uploaded_media" , user.user_id )
+        if os.path.exists(image_path):
+            shutil.rmtree(os.path.join(settings.MEDIA_ROOT, user.user_id))
         return Response({'status' : "fail"})
+    # except Exception as e:
+    #     print(e)
+    #     return Response({'status' : "fail"})
 
 @api_view(['POST'])
 def login_validation(request):
@@ -183,10 +185,9 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
     else : 
         user_id = "unknown"
 
-    path =  utils.get_profile_photo_path(user_id)
-    img = open(path , 'rb')
+    img ,type =  utils.get_profile_photo_path(user_id)
     img_data = img.read()
-    type = "image/svg+xml" if path[-3 :]== "svg" else "image/*"
+    img.close()
     return Response(img_data ,content_type= type )
 
 @api_view(['GET'])
@@ -223,38 +224,40 @@ def get_session(request):
 
 @api_view(['POST'])
 def upload_blog(request):
-    # try:
-    data = json.loads(request.POST['blogDetails'])
-    check_session = request.headers['session']
-    if check_session == session:
-        bid = utils.generate_blog_id()
-        uid = login_data['user_id']
-        print(request.FILES)
-        file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
-        if not os.path.exists(file_path):
-            os.mkdir(file_path)
-        for name in request.FILES:
-            fs = FileSystemStorage(file_path)
-            file = request.FILES[name]
-            if name == "blog_title_image":
-                name="title."+file.name[-3:]
-                if os.path.exists(os.path.join(file_path, name)):
-                    os.remove(os.path.join(file_path, name))
-            file_url = fs.save( name , file)
-            file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
-            if name[:-3] == "title.":
-                utils.edit_title_image(name , file_path)
-            elif file_type == 'image':
-                utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
-        if data['blog_title_image'] == "":
-            utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
-        utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
-    else:
-        return Response({"status" :"loginRequired"})
-    return Response({"status":"success"})
-    # except Exception as e:
-    #     print(e)
-    #     return Response({'status': 'fail'})
+    try:
+        data = json.loads(request.POST['blogDetails'])
+        check_session = request.headers['session']
+        if check_session == session:
+            bid = utils.generate_blog_id()
+            uid = login_data['user_id']
+            print(request.FILES)
+            file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
+            if not os.path.exists(file_path):
+                os.mkdir(file_path)
+            for name in request.FILES:
+                fs = FileSystemStorage(file_path)
+                file = request.FILES[name]
+                print(utils.getFileType(file.name))
+                if name == "blog_title_image":
+                    name="title."+file.name[-3:]
+                    if os.path.exists(os.path.join(file_path, name)):
+                        os.remove(os.path.join(file_path, name))
+                file_url = fs.save( name , file)
+                file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
+                if name[:-3] == "title.":
+                    utils.edit_title_image(name , file_path)
+                elif file_type == 'image':
+                    utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
+            if data['blog_title_image'] == "":
+                utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
+            utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
+            utils.blog_files_upload_to_ftp(uid , bid , file_path)
+        else:
+            return Response({"status" :"loginRequired"})
+        return Response({"status":"success"})
+    except Exception as e:
+        print(e)
+        return Response({'status': 'fail'})
 
 @api_view(['GET'])
 def getBlog(request):
@@ -273,7 +276,7 @@ def getBlog(request):
         blog = blogs.objects.get(blog_id  = bid)
         blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
         return Response({"status":"success" , "blog": data ,"title": blog.blog_title ,
-        "likes":blog.likes ,"dislikes":blog.dislikes , "views":blog.views ,"image_url": f"{os.environ['current_url']}/media/{uid}/{bid}/title.png",
+        "likes":blog.likes ,"dislikes":blog.dislikes , "views":blog.views ,"image_url": f"{os.environ['current_url']}/backend_api/getMedia?media={uid}/{bid}/title.png",
                     "blogger_details":user_details})
     except Exception as e:
         print(e)
@@ -361,3 +364,15 @@ def get_comments(request):
     comments_obj_list = comments.objects.filter(blog_id = blog_id).order_by('-upload_datetime')
     comment_list = utils.generate_comment_list(comments_obj_list)
     return Response({"status" :"success" , "comment_list" : comment_list})
+
+@api_view(['POST'])
+def retrive_blogs(request):
+    print(request.headers['session'])
+    return Response({'status': 'success'})
+
+@api_view(['GET'])
+@renderer_classes([StaticHTMLRenderer])
+def get_media(request):
+    partial_url = request.GET['media']
+    file_data,mime = utils.ftp_retrive_file(partial_url)
+    return Response(file_data, content_type= mime)

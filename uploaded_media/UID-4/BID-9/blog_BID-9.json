@@ -1,0 +1,10 @@
+[
+    "<h3 className = 'blog_heading' >Intro</h3>",
+    "<p className = 'blog_para'>Nowdays, due to pandemic students tends to cheating due to their casual behaviour or due peer pressure .</p>",
+    "<h3 className = 'blog_heading' >Cheatings Ideas</h3>",
+    "<p className = 'blog_para'>Cheating \ud83d\udca1 Ideas are going viral on social media among students. These are forming basis of a bad future. The job providing companies should take measures on their exams that at least none of the question have direct answer on internet. This step as a filter work well for surviving in these economical conditions.</p>",
+    "<iframe src='https://www.youtube.com/embed/yoIvGRuA00s'\n        title=\"YouTube video player\" frameborder=\"0\" style=\"border-radius: 5px;\n    justify-self: center;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    width: inherit;\n    max-width: 500px;\"\n        allow=\"accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture\" \n        allowfullscreen></iframe>",
+    "<ul><li>windows</li><li>linux</li><li>mac</li><li>Android</li><li>Chrome OS</li><li>DOS</li></ul>",
+    "<img className='blog_img' src ='http://192.168.43.39:8000/backend_api/getMedia?media=UID-4/BID-9/IMG_20210926_132937~2.jpg' \n            style='    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;' loading=\"lazy\" />",
+    "<video preload controls className='blog_video' src ='http://192.168.43.39:8000/backend_api/getMedia?media=UID-4/BID-9/E-aWupFUcAAFudf.mp4' style=\"    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;\" loading=\"lazy\" />"
+]

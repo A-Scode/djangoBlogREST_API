@@ -1,0 +1,6 @@
+[
+    "<h3 className = 'blog_heading' >hq</h3>",
+    "<p className = 'blog_para'>def grabFile():\n\n    filename = 'example.txt'\n\n    localfile = open(filename, 'wb')\n    ftp.retrbinary('RETR ' + filename, localfile.write, 1024)\n\n    ftp.quit()\n    localfile.close()</p>",
+    "<ul><li>xzadAs</li><li>da</li><li>dasd</li><li>asd</li></ul>",
+    "<img className='blog_img' src ='http://localhost:8000/media/UID-4/BID-7/Acer_Wallpaper_03_5000x2814.jpg' \n            style='    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;'  />"
+]

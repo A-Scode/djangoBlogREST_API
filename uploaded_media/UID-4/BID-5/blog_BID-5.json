@@ -1,0 +1,7 @@
+[
+    "<h3 className = 'blog_heading' >This is a heading</h3>",
+    "<p className = 'blog_para'><!--\n\u00a0 \u00a0 \u00a0 This HTML file is a template.\n\u00a0 \u00a0 \u00a0 If you open it directly in the browser, you will see an empty page.\n\n\n\u00a0 \u00a0 \u00a0 You can add webfonts, meta tags, or analytics to this file.\n\u00a0 \u00a0 \u00a0 The build step will place the bundled scripts into the <body> tag.\n\n\n\u00a0 \u00a0 \u00a0 To begin the development, run `npm start` or `yarn start`.\n\u00a0 \u00a0 \u00a0 To create a production bundle, use `npm run build` or `yarn build`.\n\u00a0 \u00a0 --></p>",
+    "<img className='blog_img' src ='http://localhost:8000/media/UID-4/BID-5/profile.jpg' \n            style='    border-radius: 5px;\n    width: 90%;\n    justify-self: center;\n    object-fit: contain;\n    box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;\n    aspect-ratio: 16 / 9;\n    max-width: 500px;'  />",
+    "<h3 className = 'blog_heading' >kjdfsklfjakflak</h3>",
+    "<ul><li>this is a list</li></ul>"
+]
