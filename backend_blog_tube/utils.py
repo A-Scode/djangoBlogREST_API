@@ -361,3 +361,24 @@ def ftp_upload_profile_photo(uid):
     ftpclose(ftp)
     os.remove(profile_path)
     os.remove(large_path)
+def home_blogs():
+    all_blogs = blogs.objects.order_by('-views')
+    blogs_list = []
+    for blog in all_blogs:
+        user = users.objects.get(user_id = blog.user_id.user_id)
+        data = {}
+        data['user_details']={'user_id': user.user_id,
+                                'username': user.user_name}
+        data['blog_details']={'blog_id': blog.blog_id,
+                                'views':blog.views,
+                                'likes': blog.likes,
+                                'dislikes':blog.dislikes,
+                                'title':blog.blog_title,
+                                'discription':blog.discription,
+                                'datetime':blog.upload_datetime.strftime("%a %d/%m/%Y %T"),
+                                'blog_title_image':f"{os.environ['current_url']}/backend_api/getMedia?media={user.user_id}/{blog.blog_id}/title.png"
+        }
+        blogs_list.append(data)
+    return blogs_list
+                                
+

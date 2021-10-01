@@ -185,6 +185,7 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
     else : 
         user_id = "unknown"
 
+    print(user_id)
     img ,type =  utils.get_profile_photo_path(user_id)
     img_data = img.read()
     img.close()
@@ -366,9 +367,9 @@ def get_comments(request):
     return Response({"status" :"success" , "comment_list" : comment_list})
 
 @api_view(['POST'])
-def retrive_blogs(request):
-    print(request.headers['session'])
-    return Response({'status': 'success'})
+def retrive_home_blogs(request):
+    blogs_list = utils.home_blogs()
+    return Response({'status': 'success',"blogs_list":blogs_list})
 
 @api_view(['GET'])
 @renderer_classes([StaticHTMLRenderer])

@@ -22,7 +22,7 @@ urlpatterns = [
     path('Blogreview' , views.blog_review),
     path('uploadComment', views.upload_comment),
     path('getComments' , views.get_comments),
-    path('retriveBlogs' , views.retrive_blogs),
+    path('retriveHomeBlogs' , views.retrive_home_blogs),
     path('getMedia', views.get_media)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
