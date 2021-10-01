@@ -368,8 +368,11 @@ def get_comments(request):
 
 @api_view(['POST'])
 def retrive_home_blogs(request):
-    blogs_list = utils.home_blogs()
-    return Response({'status': 'success',"blogs_list":blogs_list})
+    try:
+        blogs_list = utils.home_blogs()
+        return Response({'status': 'success',"blogs_list":blogs_list})
+    except:
+        return Response({"status":"fail"})
 
 @api_view(['GET'])
 @renderer_classes([StaticHTMLRenderer])
@@ -377,3 +380,38 @@ def get_media(request):
     partial_url = request.GET['media']
     file_data,mime = utils.ftp_retrive_file(partial_url)
     return Response(file_data, content_type= mime)
+
+@api_view(['POST'])
+def get_followings_list(request):
+    try:
+        check_session = request.headers['session']
+        if check_session == session:
+            follow_data = followings.objects.get(user_id = login_data['user_id'])
+            followings_list = json.loads(follow_data.followings)
+            return Response({'status' : 'success'  , 'followings':followings_list})
+        else:
+            return Response({'status' : 'loginRequired'})
+    except:
+        return Response({'status':'fail'})
+
+@api_view(['POST'])
+def follow_unfollow(request):
+    try:
+        check_sesssion = request.headers['session']
+        state = request.headers['state']
+        to_follow= request.headers['toFollow']
+        if check_sesssion == session and to_follow != login_data['user_id']:
+            
+            follow_data = followings.objects.get(user_id =login_data['user_id'])
+            followings_list = json.loads(follow_data.followings)
+            if state == "Follow":
+                followings_list.append(to_follow)
+            elif state == 'Following':
+                print(followings_list)
+                followings_list.remove(to_follow)
+            followings.objects.filter(user_id = login_data['user_id']).update(followings = json.dumps(followings_list))
+            return Response({'status': 'success' , "followings":followings_list})    
+        else:
+            return Response({'status' : 'loginRequired'})
+    except:
+        return Response({'status':'fail'})

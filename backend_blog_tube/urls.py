@@ -23,6 +23,8 @@ urlpatterns = [
     path('uploadComment', views.upload_comment),
     path('getComments' , views.get_comments),
     path('retriveHomeBlogs' , views.retrive_home_blogs),
-    path('getMedia', views.get_media)
+    path('getMedia', views.get_media),
+    path('getFollowingList' , views.get_followings_list),
+    path('followUnfollow' , views.follow_unfollow)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
