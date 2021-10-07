@@ -60,7 +60,8 @@ CORS_ALLOW_CREDENTAILS = True
 
 CORS_ALLOW_HEADERS = ["*"]
 CORS_ORIGIN_WHITELIST = [
-    os.environ['react_origin'],"http://192.168.43.81:3000" #static local ip
+    os.environ['react_origin'],"http://192.168.43.81:3000", #static local ip
+    "https://blogtube.herokuapp.com/"
 ]
 
 ROOT_URLCONF = 'blog_tube.urls'
