@@ -1,0 +1,12 @@
+backports.entry-points-selectable==1.1.0
+cffi==1.14.6
+cryptography==3.4.8
+distlib==0.3.2
+filelock==3.0.12
+mysql-connector-python==8.0.26
+Pillow==8.3.2
+platformdirs==2.3.0
+pyaes==1.6.1
+pycparser==2.20
+six==1.16.0
+virtualenv==20.7.2
