@@ -12,9 +12,6 @@ from urllib import request,error
 
 import textwrap, mimetypes,ftplib
 
-from django.env_variables import *
-declare_variables()
-
 def generate_user_id():
     no_of_users = len(users.objects.all())
     user_id = 'UID-'+ str(no_of_users+1)
