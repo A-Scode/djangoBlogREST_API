@@ -195,14 +195,7 @@ def get_profile_photo(request):     #Must send user details for POST if unkown t
 def user_list(request):
     try:
         all_users = users.objects.all()
-        user_list = []
-        for user in all_users:
-            user_details = {}
-            user_details['user_id'] = user.user_id
-            user_details['user_name'] = user.user_name
-            user_details['total_blogs'] = user.blogs_upload
-            user_details['followers_count'] = len(json.loads(followers.objects.get(user_id  = user.user_id).followers))
-            user_list.append(user_details)
+        user_list = utils.blogian_user_details(all_users)
         return Response({'status': 'success' , 'userslist': user_list} )
     except Exception as e:
         print(e)
@@ -369,7 +362,7 @@ def get_comments(request):
 @api_view(['POST'])
 def retrive_home_blogs(request):
     try:
-        blogs_list = utils.home_blogs()
+        blogs_list = utils.blogs_details(blogs.objects.order_by('-views'))
         return Response({'status': 'success',"blogs_list":blogs_list})
     except:
         return Response({"status":"fail"})
@@ -404,14 +397,37 @@ def follow_unfollow(request):
             
             follow_data = followings.objects.get(user_id =login_data['user_id'])
             followings_list = json.loads(follow_data.followings)
+            followed_data = followers.objects.get(user_id = to_follow)
+            followers_list = json.loads(followed_data.followers)
             if state == "Follow":
                 followings_list.append(to_follow)
+                followers_list.append(login_data['user_id'])
+                
             elif state == 'Following':
-                print(followings_list)
                 followings_list.remove(to_follow)
+                followers_list.remove(login_data['user_id'])
+
             followings.objects.filter(user_id = login_data['user_id']).update(followings = json.dumps(followings_list))
+            followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
+
             return Response({'status': 'success' , "followings":followings_list})    
         else:
             return Response({'status' : 'loginRequired'})
     except:
         return Response({'status':'fail'})
+
+@api_view(['POST'])
+def get_user_details(request):
+    user_id = request.headers['userId']
+    data_to_send= {}
+    profile_user = users.objects.get(user_id = user_id)
+    data_to_send['userName']= profile_user.user_name
+    data_to_send['email']=profile_user.email
+    data_to_send['joinDatetime'] = profile_user.join_datetime.strftime('%a %d/%m/%Y')
+    data_to_send['blogs']=utils.blogs_details(blogs.objects.filter(user_id = user_id).order_by('-upload_datetime'))
+    data_to_send['comments']=utils.generate_comment_list(comments.objects.filter(user_id = user_id).order_by('-upload_datetime'))
+    data_to_send['followings'] = utils.generate_follow_list(json.loads(followings.objects.get(user_id = user_id).followings))
+    data_to_send['followers'] = utils.generate_follow_list(json.loads(followers.objects.get(user_id = user_id).followers))
+
+    return Response({'status':'success' , "userData":data_to_send})
+    

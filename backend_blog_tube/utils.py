@@ -49,24 +49,6 @@ def serialize( modelObject ):
             raise TypeError('Unknown type to Serialize')
     return serialized_model
 
-def write_blogs(dict):
-    serialize(dict)
-    file = open('blogs.json' , 'w')
-    json.dump(dict , file , indent=4)
-    file.flush()
-    file.close()
-
-def read_blogs():
-    file = open('blogs.json' , 'r')
-    object  = json.loads(file)
-    file.close()
-    return object
-
-def add_one_blog(user_id):
-    user = users.objects.get(user_id = user_id)
-    user['blogs_upload'] += 1
-    user.save(['blogs_upload'])
-
 def encode_fernet(en_str):
     fernet = Fernet(os.environ['fernet_key'])
     encode = fernet.encrypt(en_str.encode()).decode()
@@ -257,6 +239,8 @@ def generate_comment_list(query_set):
         data['name'] = comment.user_id.user_name
         data['text'] = comment.comment
         data['upload_datetime'] = comment.upload_datetime.strftime("%a %d/%m/%Y %T")
+        data['blog_id'] = comment.blog_id.blog_id
+        data['blog_title'] = comment.blog_id.blog_title
         comment_list.append(data)
     return comment_list
 
@@ -361,8 +345,7 @@ def ftp_upload_profile_photo(uid):
     ftpclose(ftp)
     os.remove(profile_path)
     os.remove(large_path)
-def home_blogs():
-    all_blogs = blogs.objects.order_by('-views')
+def blogs_details(all_blogs):
     blogs_list = []
     for blog in all_blogs:
         user = users.objects.get(user_id = blog.user_id.user_id)
@@ -380,5 +363,26 @@ def home_blogs():
         }
         blogs_list.append(data)
     return blogs_list
+
+def blogian_user_details(all_users):
+    user_list = []
+    for user in all_users:
+        user_details = {}
+        user_details['user_id'] = user.user_id
+        user_details['user_name'] = user.user_name
+        user_details['total_blogs'] = user.blogs_upload
+        user_details['followers_count'] = len(json.loads(followers.objects.get(user_id  = user.user_id).followers))
+        user_list.append(user_details)
+    return user_list
+
+def generate_follow_list(user_id_list):
+    ret_list = []
+    for i in user_id_list:
+        user= users.objects.get(user_id = i)
+        ret_list.append(user)
+    ret_list = blogian_user_details(ret_list)
+    return ret_list
+    
+    
                                 
 

@@ -25,6 +25,7 @@ urlpatterns = [
     path('retriveHomeBlogs' , views.retrive_home_blogs),
     path('getMedia', views.get_media),
     path('getFollowingList' , views.get_followings_list),
-    path('followUnfollow' , views.follow_unfollow)
+    path('followUnfollow' , views.follow_unfollow),
+    path('getUserDetails' , views.get_user_details)
 
 ]+static( settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
