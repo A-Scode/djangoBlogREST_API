@@ -58,9 +58,11 @@ MIDDLEWARE = [
 CORS_ALLOW_CREDENTAILS = True
 
 CORS_ALLOW_HEADERS = ["*"]
-CORS_ORIGIN_WHITELIST = ["https://192.168.43.81:3000", #static local ip
-    "https://blogtube.herokuapp.com","https://a-scode.github.io"
-]
+# CORS_ORIGIN_WHITELIST = ["https://192.168.43.81:3000", #static local ip
+#     "https://blogtube.herokuapp.com","https://a-scode.github.io"
+# ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'blog_tube.urls'
 
