@@ -155,7 +155,7 @@ EMAIL_HOST_PASSWORD = os.environ['sender_pass']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-import logging
+import logging,sys
 logger = logging.getLogger(__name__)
 logger.info('some important infos')
 
