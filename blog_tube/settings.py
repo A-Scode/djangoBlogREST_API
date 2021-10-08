@@ -174,6 +174,10 @@ LOGGING = {
             'handlers': ['console'],
             'propagate': True,
             'level': 'INFO',
+        },'backend_blog_tube.views': {
+            'handlers': ['console'],
+        },'backend_blog_tube.utils':{
+            'handlers':['console'],
         },
         '': {
             'handlers': ['console'],
