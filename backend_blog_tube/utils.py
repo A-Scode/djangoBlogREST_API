@@ -2,7 +2,7 @@ from os import environ
 import urllib
 from .models import users , blogs, comments,followers,settings as user_settings
 from datetime import datetime
-import json,shutil,random,string
+import json,shutil,random,string,os
 from cryptography.fernet import Fernet
 from PIL  import Image, ImageFilter ,ImageDraw , ImageFont
 from django.conf import settings
