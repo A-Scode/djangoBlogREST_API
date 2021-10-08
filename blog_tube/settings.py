@@ -155,3 +155,31 @@ EMAIL_HOST_PASSWORD = os.environ['sender_pass']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import logging
+logger = logging.getLogger(__name__)
+logger.info('some important infos')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO',
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        }
+    }
+}
+import django_heroku
+django_heroku.settings(locals(), logging=False)
