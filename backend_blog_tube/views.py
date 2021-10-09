@@ -226,7 +226,7 @@ def upload_blog(request):
         print(request.FILES)
         file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
         if not os.path.exists(file_path):
-            os.mkdir(file_path)
+            os.makedirs(file_path)
         for name in request.FILES:
             fs = FileSystemStorage(file_path)
             file = request.FILES[name]

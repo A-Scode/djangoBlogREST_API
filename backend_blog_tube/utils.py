@@ -184,7 +184,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
 def generate_blog(data , uid  , bid ,file_path ,details):
     blog_elem_list = generate_elem_list(data ,uid,bid)
     if not os.path.exists(file_path ):
-            os.mkdir(file_path)
+            os.makedirs(file_path)
     file = open(os.path.join(file_path,f"blog_{bid}.json"),'w')
     file.write(json.dumps(blog_elem_list,indent= 4))
     file.close()
@@ -218,7 +218,7 @@ def edit_title_image(name , file_path,empty = False,title=""):
         title = textwrap.fill(title ,width=14)
         t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='center')
         if not os.path.exists(file_path ):
-            os.mkdir(file_path)
+            os.makedirs(file_path)
         img.save(os.path.join(file_path, name))
         img.close()
 def getUID(bid):
