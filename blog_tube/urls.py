@@ -21,4 +21,4 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('backend_api/', include('backend_blog_tube.urls'))
-]+static(settings.STATIC_URL , document_root= settings.STATICFILES_DIRS[0])+static(settings.MEDIA_URL , document_root=settings.MEDIA_ROOT)
+]+static(settings.MEDIA_URL , document_root=settings.MEDIA_ROOT)
