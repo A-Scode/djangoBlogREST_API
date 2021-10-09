@@ -215,6 +215,8 @@ def edit_title_image(name , file_path,empty = False,title=""):
         # font.set_variation_by_name('Italic')
         title = textwrap.fill(title ,width=14)
         t1.text((img.width//2,img.height//2) ,title , fill=(255,255,255) , font = font,anchor="mm" ,spacing=5 ,align='center')
+        if not os.path.exists(file_path ):
+            os.mkdir(file_path)
         img.save(os.path.join(file_path, name))
         img.close()
 def getUID(bid):
