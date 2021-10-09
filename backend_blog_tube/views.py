@@ -281,6 +281,7 @@ def getBlog_preview(request):
     try:
         blog = json.loads(request.POST['blog'])
         check_session = request.headers['session']
+        print(check_session , session)
         if check_session == session:
             blog_elem_list = utils.generate_elem_list(blog , '' , '' , preview=True)
             return Response({"status": "success" , "hydratedBlog" : blog_elem_list })
