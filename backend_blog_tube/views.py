@@ -91,7 +91,6 @@ def otp_validation(request):
 def login_validation(request):
     data = json.loads(request.headers['credentails'])
     global login_data , session
-    
     try:
         user = users.objects.get(email = data['email'])
         password = utils.decode_fernet(user.password)[:-6]

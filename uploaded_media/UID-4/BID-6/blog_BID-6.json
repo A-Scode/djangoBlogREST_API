@@ -1,4 +1,0 @@
-[
-    "<p className = 'blog_para'>def grabFile():\n\n    filename = 'example.txt'\n\n    localfile = open(filename, 'wb')\n    ftp.retrbinary('RETR ' + filename, localfile.write, 1024)\n\n    ftp.quit()\n    localfile.close()</p>",
-    "<ul><li>zxcdzxc</li><li>dfgfsdf</li><li>fghfghf</li></ul>"
-]
