@@ -142,7 +142,7 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
-STATICFILES_DIRS  = [os.path.join(os.getcwd(), 'frontend', 'blog_tube', 'src', 'componenets', 'statics')]
+STATICFILES_DIRS  = []
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(os.getcwd(), 'uploaded_media')
