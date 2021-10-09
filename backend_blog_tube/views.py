@@ -400,12 +400,12 @@ def follow_unfollow(request):
             followed_data = followers.objects.get(user_id = to_follow)
             followers_list = json.loads(followed_data.followers)
             if state == "Follow":
-                followings_list.append(to_follow)
-                followers_list.append(login_data['user_id'])
+                list(set(followings_list.append(to_follow)))
+                list(set(followers_list.append(login_data['user_id'])))
                 
             elif state == 'Following':
-                followings_list.remove(to_follow)
-                followers_list.remove(login_data['user_id'])
+                list(set(followings_list.remove(to_follow)))
+                list(set(followers_list.remove(login_data['user_id'])))
 
             followings.objects.filter(user_id = login_data['user_id']).update(followings = json.dumps(followings_list))
             followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
