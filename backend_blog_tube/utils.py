@@ -183,6 +183,8 @@ def generate_elem_list(data ,uid  , bid , preview = False):
 
 def generate_blog(data , uid  , bid ,file_path ,details):
     blog_elem_list = generate_elem_list(data ,uid,bid)
+    if not os.path.exists(file_path ):
+            os.mkdir(file_path)
     file = open(os.path.join(file_path,f"blog_{bid}.json"),'w')
     file.write(json.dumps(blog_elem_list,indent= 4))
     file.close()
