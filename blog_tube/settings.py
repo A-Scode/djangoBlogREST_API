@@ -12,8 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 from pathlib import Path
 import os
-from django.env_variables import *
-declare_variables()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -63,6 +62,12 @@ CORS_ORIGIN_WHITELIST = [
     os.environ['react_origin'],"http://192.168.43.81:3000", #static local ip
     "https://blogtube.herokuapp.com/","https://a-scode.github.io/"
 ]
+
+# CORS_ORIGIN_WHITELIST = ["https://192.168.43.81:3000", #static local ip
+#     "https://blogtube.herokuapp.com","https://a-scode.github.io"
+# ]
+
+CORS_ORIGIN_ALLOW_ALL = True
 
 ROOT_URLCONF = 'blog_tube.urls'
 
@@ -155,5 +160,35 @@ EMAIL_HOST_PASSWORD = os.environ['sender_pass']
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+import logging,sys
+logger = logging.getLogger(__name__)
+logger.info('some important infos')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['console'],
+            'propagate': True,
+            'level': 'INFO',
+        },'backend_blog_tube.views': {
+            'handlers': ['console'],
+        },'backend_blog_tube.utils':{
+            'handlers':['console'],
+        },
+        '': {
+            'handlers': ['console'],
+            'level': 'INFO',
+        }
+    }
+}
 import django_heroku
-django_heroku.settings(locals())
+django_heroku.settings(locals(), logging=False)
