@@ -217,40 +217,40 @@ def get_session(request):
 
 @api_view(['POST'])
 def upload_blog(request):
-    # try:
-    data = json.loads(request.POST['blogDetails'])
-    check_session = request.headers['session']
-    if check_session == session:
-        bid = utils.generate_blog_id()
-        uid = login_data['user_id']
-        print(request.FILES)
-        file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
-        if not os.path.exists(file_path):
-            os.makedirs(file_path)
-        for name in request.FILES:
-            fs = FileSystemStorage(file_path)
-            file = request.FILES[name]
-            print(utils.getFileType(file.name))
-            if name == "blog_title_image":
-                name="title."+file.name[-3:]
-                if os.path.exists(os.path.join(file_path, name)):
-                    os.remove(os.path.join(file_path, name))
-            file_url = fs.save( name , file)
-            file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
-            if name[:-3] == "title.":
-                utils.edit_title_image(name , file_path)
-            elif file_type == 'image':
-                utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
-        if data['blog_title_image'] == "":
-            utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
-        utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
-        utils.blog_files_upload_to_ftp(uid , bid , file_path)
-    else:
-        return Response({"status" :"loginRequired"})
-    return Response({"status":"success"})
-    # except Exception as e:
-    #     print(e)
-    #     return Response({'status': 'fail'})
+    try:
+        data = json.loads(request.POST['blogDetails'])
+        check_session = request.headers['session']
+        if check_session == session:
+            bid = utils.generate_blog_id()
+            uid = login_data['user_id']
+            print(request.FILES)
+            file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
+            if not os.path.exists(file_path):
+                os.makedirs(file_path)
+            for name in request.FILES:
+                fs = FileSystemStorage(file_path)
+                file = request.FILES[name]
+                print(utils.getFileType(file.name))
+                if name == "blog_title_image":
+                    name="title."+file.name[-3:]
+                    if os.path.exists(os.path.join(file_path, name)):
+                        os.remove(os.path.join(file_path, name))
+                file_url = fs.save( name , file)
+                file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
+                if name[:-3] == "title.":
+                    utils.edit_title_image(name , file_path)
+                elif file_type == 'image':
+                    utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
+            if data['blog_title_image'] == "":
+                utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
+            utils.generate_blog(data['blog'],uid , bid ,file_path ,data )
+            utils.blog_files_upload_to_ftp(uid , bid , file_path)
+        else:
+            return Response({"status" :"loginRequired"})
+        return Response({"status":"success"})
+    except Exception as e:
+        print(e)
+        return Response({'status': 'fail'})
 
 @api_view(['GET'])
 def getBlog(request):
@@ -372,6 +372,7 @@ def retrive_home_blogs(request):
 def get_media(request):
     partial_url = request.GET['media']
     file_data,mime = utils.ftp_retrive_file(partial_url)
+    print(file_data , mime)
     return Response(file_data, content_type= mime)
 
 @api_view(['POST'])
