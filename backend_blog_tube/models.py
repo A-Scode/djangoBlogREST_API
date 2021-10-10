@@ -146,6 +146,6 @@ class signup_data(models.Model):
     otp = models.CharField(max_length= 4 )
 
 class login_session(models.Model):
-    user_id = ForeignKey(to = users)
+    user_id = ForeignKey(to = users , on_delete= models.CASCADE)
     session = CharField(max_length= 200,unique=True )
 
