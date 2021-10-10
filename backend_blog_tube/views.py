@@ -1,20 +1,18 @@
 from datetime import datetime
+from functools import singledispatch
 import mimetypes
 from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,renderer_classes
 from rest_framework.renderers import StaticHTMLRenderer
-from .models import followings, users, blogs, comments,settings as users_settings,followers
+from .models import followings, users, blogs, comments,settings as users_settings,followers,signup_data,login_session
 from . import utils
-import json,os,shutil,urllib.request
+import json,os,shutil,base64
 from django.conf import settings
 from django.core.files.storage import FileSystemStorage
 
 
 # Create your views here.
-
-login_data = {}
-session = ""
 
 
 @api_view(['GET'])
@@ -25,19 +23,20 @@ def test(request ):
 
 @api_view(['POST']) 
 def signup(request):
-    global user ,otp_signup
+    # global user ,otp_signup
     try:
         data = json.loads(request.headers['userData'])
         if utils.check_email(data['email']):
             uid = utils.generate_user_id()
             salt  = utils.generate_salt()
-            user = users( 
+            user = users(
                 user_id = uid ,
             user_name = data['username'],
             email = data['email'],
             password = utils.encode_fernet(data['password']+salt),
             salt = salt
             )
+            user.save()
 
             image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
             if not os.path.exists(image_path):
@@ -51,6 +50,8 @@ def signup(request):
                 utils.image_resize(image_path , file_url)
 
             otp_signup = utils.generate_otp()
+            user_sign_up = signup_data(email = data['email']  , otp = otp_signup)
+            user_sign_up.save()
             utils.send_otp(otp_signup , data['username'], data['email'])
             print("sucess")
             return Response({'status': "otp"})
@@ -65,10 +66,10 @@ def signup(request):
 def otp_validation(request):
     # try:
     data = request.headers
-    if (data['otp'] == otp_signup):
+    signup_user = signup_data.objects.get(email = data['email'])
+    user = users.objects.get(email= data['email'])
+    if (data['otp'] == signup_user.otp):
         user_id = user.user_id
-        user.save()
-        user.refresh_from_db()
         user_settings = users_settings(user_id = user)
         user_settings.save()
         user_follower = followers(user_id = user)
@@ -76,8 +77,11 @@ def otp_validation(request):
         user_following = followings(user_id = user)
         user_following.save()
         utils.ftp_upload_profile_photo(user_id)
+        signup_data.objects.get(email = data['email']).delete()
         return Response({'staus': "success"})
     else:
+        users.objects.filter(user_id = user.user_id ).delete()
+        signup_data.objects.get(email = data['email']).delete()
         print('fail OTP')
         image_path = os.path.join(os.getcwd(), "uploaded_media" , user.user_id )
         if os.path.exists(image_path):
@@ -90,18 +94,18 @@ def otp_validation(request):
 @api_view(['POST'])
 def login_validation(request):
     data = json.loads(request.headers['credentails'])
-    global login_data , session
     try:
         user = users.objects.get(email = data['email'])
         password = utils.decode_fernet(user.password)[:-6]
         if data['password'] == password:
-            session = utils.create_session()
-            login_data = {
-                "user_id": user.user_id,
-                "username": user.user_name,
-                "email" : user.email,
-                "encryp_pass":user.password
-            }
+            
+            while True:
+                try:
+                    session = utils.create_session()
+                    loggedin_user = login_session(user_id = user , session = session)
+                    loggedin_user.save()
+                    break
+                except:continue
             return Response( {'status': 'success' ,
             "login_data" : {
                 "user_id": user.user_id,
@@ -113,8 +117,6 @@ def login_validation(request):
         else :
             return Response({"status" : "not_match"})
     except Exception as error:
-        login_data = {}
-        session = ""
         return Response({"status" : "fail"})
 
 @api_view(['POST'])
@@ -164,8 +166,9 @@ def change_password(request):
 @api_view(['POST'])
 @renderer_classes([StaticHTMLRenderer])
 def get_profile_photo(request):     #Must send user details for POST if unkown than userID unknown
-    if request.headers['session'] == session and request.headers['session'] :
-        user_details = login_data
+    login_data = login_session.objects.get(session = request.headers['session'])
+    if request.headers['session'] == login_data.session and request.headers['session'] :
+        user_details = {"user_id": login_data.user_id.user_id}
     else: 
         user_details= {"user_id" : "unknown"}
     photo_uid = request.headers['photouid']
@@ -202,27 +205,25 @@ def user_list(request):
 
 @api_view(['POST'])
 def logout_validation(request ):
-    global session
-
-    check_session = json.loads(request.headers['session'])
-    if session == check_session:
-        session = ""
+    check_session = request.headers['session']
+    user_id = request.headers['user_id']
+    login_data = login_session.objects.get(session = check_session )
+    if login_data.session == check_session:
+        login_session.objects.filter(session = check_session ).delete()
         return Response({"status": "success"})
     else:
         return Response({'status' : 'fail'})
 
-@api_view(['POST','GET'])
-def get_session(request):
-    return Response({'session': session})
 
 @api_view(['POST'])
 def upload_blog(request):
     try:
         data = json.loads(request.POST['blogDetails'])
         check_session = request.headers['session']
-        if check_session == session:
+        login_data = login_session.objects.get(session = check_session)
+        if check_session == login_data.session:
             bid = utils.generate_blog_id()
-            uid = login_data['user_id']
+            uid = login_data.user_id.user_id
             print(request.FILES)
             file_path = os.path.join(os.getcwd(), "uploaded_media" , uid , bid )
             if not os.path.exists(file_path):
@@ -372,15 +373,15 @@ def retrive_home_blogs(request):
 def get_media(request):
     partial_url = request.GET['media']
     file_data,mime = utils.ftp_retrive_file(partial_url)
-    print(file_data , mime)
     return Response(file_data, content_type= mime)
 
 @api_view(['POST'])
 def get_followings_list(request):
     try:
         check_session = request.headers['session']
-        if check_session == session:
-            follow_data = followings.objects.get(user_id = login_data['user_id'])
+        login_data = login_session.objects.get(session = check_session)
+        if check_session == login_data.session:
+            follow_data = followings.objects.get(user_id = login_data.user_id.user_id)
             followings_list = json.loads(follow_data.followings)
             return Response({'status' : 'success'  , 'followings':followings_list})
         else:
@@ -394,21 +395,22 @@ def follow_unfollow(request):
         check_sesssion = request.headers['session']
         state = request.headers['state']
         to_follow= request.headers['toFollow']
-        if check_sesssion == session and to_follow != login_data['user_id']:
+        login_data = login_session.objects.get(session = check_sesssion)
+        if check_sesssion == login_data.session and to_follow != login_data.user_id.user_id:
             
-            follow_data = followings.objects.get(user_id =login_data['user_id'])
+            follow_data = followings.objects.get(user_id =login_data.user_id.user_id)
             followings_list = json.loads(follow_data.followings)
             followed_data = followers.objects.get(user_id = to_follow)
             followers_list = json.loads(followed_data.followers)
             if state == "Follow":
                 list(set(followings_list.append(to_follow)))
-                list(set(followers_list.append(login_data['user_id'])))
+                list(set(followers_list.append(login_data.user_id.user_id)))
                 
             elif state == 'Following':
                 list(set(followings_list.remove(to_follow)))
-                list(set(followers_list.remove(login_data['user_id'])))
+                list(set(followers_list.remove(login_data.user_id.user_id)))
 
-            followings.objects.filter(user_id = login_data['user_id']).update(followings = json.dumps(followings_list))
+            followings.objects.filter(user_id = login_data.user_id.user_id).update(followings = json.dumps(followings_list))
             followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
 
             return Response({'status': 'success' , "followings":followings_list})    

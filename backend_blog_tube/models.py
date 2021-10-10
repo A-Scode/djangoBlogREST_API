@@ -1,6 +1,9 @@
 from django.db import models
 import json , string , random
 
+from django.db.models.fields import CharField
+from django.db.models.fields.related import ForeignKey
+
 
 def generate_salt():
         salt = ''.join(random.choices(string.punctuation , k = 6))
@@ -12,7 +15,7 @@ class users(models.Model):
     ''' user_id , user_name , join_datetime(auto) , blogs_upload(default= 0)'''
     user_id = models.CharField(max_length= 10 , primary_key= True , null = False)
     user_name = models.CharField(max_length= 100 , null = False)
-    email = models.EmailField(max_length= 100 , null = False, default = None)
+    email = models.EmailField(max_length= 100 , null = False, default = None,unique=True)
     password = models.CharField(max_length=200  , null = False)
     join_datetime  = models.DateTimeField(auto_now=True , null = False)
     blogs_upload = models.IntegerField(default = 0)
@@ -137,4 +140,12 @@ class followers(models.Model):
 class followings(models.Model):
     user_id = models.ForeignKey(to=users , on_delete=models.CASCADE)
     followings = models.JSONField( default = json.dumps([]))
+
+class signup_data(models.Model):
+    email = models.EmailField(max_length= 100 , unique=True)
+    otp = models.CharField(max_length= 4 )
+
+class login_session(models.Model):
+    user_id = ForeignKey(to = users)
+    session = CharField(max_length= 200,unique=True )
 
