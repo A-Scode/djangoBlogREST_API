@@ -284,8 +284,8 @@ def getBlog_preview(request):
     try:
         blog = json.loads(request.POST['blog'])
         check_session = request.headers['session']
-        print(check_session , session)
-        if check_session == session:
+        login_data = login_session.objects.get(session = check_session)
+        if check_session == login_data.session:
             blog_elem_list = utils.generate_elem_list(blog , '' , '' , preview=True)
             return Response({"status": "success" , "hydratedBlog" : blog_elem_list })
         else : 
@@ -342,7 +342,8 @@ def blog_review(request):
 def upload_comment(request):
     try:
         check_session = request.headers['session']
-        if session == check_session:
+        login_data = login_session.objects.get(session = check_session)
+        if login_data.session == check_session:
             comment = request.POST['comment']
             c_user = users.objects.get(user_id = request.POST['user_id'])
             blog_id = blogs.objects.get(blog_id =request.POST['blog_id'])
