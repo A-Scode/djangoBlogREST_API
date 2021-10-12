@@ -24,43 +24,43 @@ def test(request ):
 @api_view(['POST']) 
 def signup(request):
     # global user ,otp_signup
-    try:
-        data = json.loads(request.headers['userData'])
-        if utils.check_email(data['email']):
-            uid = utils.generate_user_id()
-            salt  = utils.generate_salt()
-            user = users(
-                user_id = uid ,
-            user_name = data['username'],
-            email = data['email'],
-            password = utils.encode_fernet(data['password']+salt),
-            salt = salt
-            )
-            user.save()
+    # try:
+    data = json.loads(request.headers['userData'])
+    if utils.check_email(data['email']):
+        uid = utils.generate_user_id()
+        salt  = utils.generate_salt()
+        user = users(
+            user_id = uid ,
+        user_name = data['username'],
+        email = data['email'],
+        password = utils.encode_fernet(data['password']+salt),
+        salt = salt
+        )
+        user.save()
 
-            image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
-            if not os.path.exists(image_path):
-                os.makedirs(image_path)
-            if len(request.FILES) != 0:
-                fs =  FileSystemStorage(image_path)
-                file = request.FILES['image']
-                file_name  = file.name
-                file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
-                print(file_url)
-                utils.image_resize(image_path , file_url)
+        image_path = os.path.join(os.getcwd(), "uploaded_media" , uid , 'profile')
+        if not os.path.exists(image_path):
+            os.makedirs(image_path)
+        if len(request.FILES) != 0:
+            fs =  FileSystemStorage(image_path)
+            file = request.FILES['image']
+            file_name  = file.name
+            file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
+            print(file_url)
+            utils.image_resize(image_path , file_url)
 
-            otp_signup = utils.generate_otp()
-            user_sign_up = signup_data(email = data['email']  , otp = otp_signup)
-            user_sign_up.save()
-            utils.send_otp(otp_signup , data['username'], data['email'])
-            print("sucess")
-            return Response({'status': "otp"})
-        
-        else:
-            return Response({'status':'exists'})
-    except Exception as error :
-        print(error)
-        return Response({'status' : "fail"})
+        otp_signup = utils.generate_otp()
+        user_sign_up = signup_data(email = data['email']  , otp = otp_signup)
+        user_sign_up.save()
+        utils.send_otp(otp_signup , data['username'], data['email'])
+        print("sucess")
+        return Response({'status': "otp"})
+    
+    else:
+        return Response({'status':'exists'})
+    # except Exception as error :
+    #     print(error)
+    #     return Response({'status' : "fail"})
 
 @api_view(['POST'])
 def otp_validation(request):
