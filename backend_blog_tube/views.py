@@ -68,6 +68,7 @@ def signup(request):
 def otp_validation(request):
     # try:
     data = request.headers
+    print(data['email'])
     signup_user = signup_data.objects.get(email = data['email'])
     user = users.objects.get(email= data['email'])
     if (data['otp'] == signup_user.otp):
