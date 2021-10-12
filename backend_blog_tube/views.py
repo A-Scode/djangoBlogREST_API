@@ -169,9 +169,11 @@ def change_password(request):
 @api_view(['POST'])
 @renderer_classes([StaticHTMLRenderer])
 def get_profile_photo(request):     #Must send user details for POST if unkown than userID unknown
-    login_data = login_session.objects.get(session = request.headers['session'])
-    if request.headers['session'] == login_data.session and request.headers['session'] :
+    try:
+        login_data = login_session.objects.get(session = request.headers['session'])
         user_details = {"user_id": login_data.user_id.user_id}
+    except:
+        user_details={"user_id":"unknown"}
     else: 
         user_details= {"user_id" : "unknown"}
     photo_uid = request.headers['photouid']
