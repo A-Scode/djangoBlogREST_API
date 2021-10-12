@@ -14,6 +14,8 @@ from django.core.files.storage import FileSystemStorage
 
 # Create your views here.
 
+import django.env_variables 
+django.env_variables.declare_variables()
 
 @api_view(['GET'])
 def test(request ):
