@@ -311,7 +311,7 @@ def blog_review(request):
     uid = request.POST['uid']
     bid = request.POST['bid']
     review = request.POST['review']
-    print(review)
+    blogs.refresh_from_db()
     blog = blogs.objects.get(blog_id = bid)
     reviewers = json.loads(blog.reviewers)
     if review == "like":
