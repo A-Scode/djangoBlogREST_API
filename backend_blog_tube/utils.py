@@ -182,17 +182,14 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     return data_lsit
 
 
-def generate_blog(data , uid  , bid ,file_path ,details):
+def generate_blog(data , uid  , bid ,file_path ):
     blog_elem_list = generate_elem_list(data ,uid,bid)
     if not os.path.exists(file_path ):
             os.makedirs(file_path)
     file = open(os.path.join(file_path,f"blog_{bid}.json"),'w')
     file.write(json.dumps(blog_elem_list,indent= 4))
     file.close()
-    user = users.objects.get(user_id = uid)
-    blog = blogs(blog_id = bid ,user_id = user, blog_title = details['title'],discription = details['discription'])
-    users.objects.filter(user_id = uid).update(blogs_upload= user.blogs_upload+1)
-    blog.save()
+
 
 def edit_title_image(name , file_path,empty = False,title=""):
     if not empty:
@@ -302,7 +299,7 @@ def ftp_retrive_file(path):
     except error.URLError :
         return file_data ,mime
 
-def blog_files_upload_to_ftp(uid,bid , filepath):
+def blog_files_upload_to_ftp(uid,bid , filepath ,details):
     ftp = ftpopen(f'/htdocs/BlogTube/{uid}')
     ftp.mkd(bid)
     ftp.cwd(bid)
@@ -326,6 +323,10 @@ def blog_files_upload_to_ftp(uid,bid , filepath):
             num+=1
         file.close()
         os.remove(os.path.join(filepath,filename))
+        user = users.objects.get(user_id = uid)
+        blog = blogs(blog_id = bid ,user_id = user, blog_title = details['title'],discription = details['discription'])
+        users.objects.filter(user_id = uid).update(blogs_upload= user.blogs_upload+1)
+        blog.save()
 
     file2.close()
     os.remove(os.path.join(os.getcwd(),'compFile.bin'))
