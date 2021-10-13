@@ -422,7 +422,7 @@ def follow_unfollow(request):
         followings.objects.filter(user_id = login_data.user_id.user_id).update(followings = json.dumps(followings_list))
         followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
 
-        return Response({'status': 'success' , "followings":followings_list})    
+        return Response({'status': 'success' , "followings":followings_list ,"followers_count":len(followers_list)})    
     else:
         return Response({'status' : 'loginRequired'})
     # except Exception as e:
