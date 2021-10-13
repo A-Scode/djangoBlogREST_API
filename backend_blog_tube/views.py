@@ -421,7 +421,8 @@ def follow_unfollow(request):
             return Response({'status': 'success' , "followings":followings_list})    
         else:
             return Response({'status' : 'loginRequired'})
-    except:
+    except Exception as e:
+        print(e)
         return Response({'status':'fail'})
 
 @api_view(['POST'])
