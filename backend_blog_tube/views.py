@@ -406,7 +406,7 @@ def follow_unfollow(request):
         followings_list = json.loads(follow_data.followings)
         followed_data = followers.objects.get(user_id = to_follow)
         followers_list = json.loads(followed_data.followers)
-        print(followings_list,followers_list)
+        print(state)
         if state == "Follow":
             followings_list.append(to_follow)
             followers_list.append(login_data.user_id.user_id)
