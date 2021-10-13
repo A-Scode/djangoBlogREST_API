@@ -25,7 +25,6 @@ def test(request ):
 
 @api_view(['POST']) 
 def signup(request):
-    # global user ,otp_signup
     try:
         data = json.loads(request.headers['userData'])
         if utils.check_email(data['email']):

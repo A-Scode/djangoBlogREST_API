@@ -341,12 +341,12 @@ def ftp_upload_profile_photo(uid):
         profile_photo  = open(profile_path , 'rb')
         large_photo  = open(large_path , 'rb')
         ftp.storbinary('STOR profile.jpg' , profile_photo)
-        ftp.storbinary('STOR profile.jpg' , large_photo)
+        ftp.storbinary('STOR Largeprofile.jpg' , large_photo)
         profile_photo.close()
         large_photo.close()
+        os.remove(profile_path)
+        os.remove(large_path)
     ftpclose(ftp)
-    os.remove(profile_path)
-    os.remove(large_path)
 def blogs_details(all_blogs):
     blogs_list = []
     for blog in all_blogs:
