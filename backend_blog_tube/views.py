@@ -104,6 +104,7 @@ def login_validation(request):
             while True:
                 try:
                     session = utils.create_session()
+                    login_session.objects.filter(user_id = user.user_id).delete()
                     loggedin_user = login_session(user_id = user , session = session)
                     loggedin_user.save()
                     break
