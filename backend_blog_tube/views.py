@@ -396,34 +396,33 @@ def get_followings_list(request):
 
 @api_view(['POST'])
 def follow_unfollow(request):
-    try:
-        check_sesssion = request.headers['session']
-        state = request.headers['state']
-        to_follow= request.headers['toFollow']
-        login_data = login_session.objects.get(session = check_sesssion)
-        if check_sesssion == login_data.session and to_follow != login_data.user_id.user_id:
+    # try:
+    check_sesssion = request.headers['session']
+    state = request.headers['state']
+    to_follow= request.headers['toFollow']
+    login_data = login_session.objects.get(session = check_sesssion)
+    if check_sesssion == login_data.session and to_follow != login_data.user_id.user_id:
+        follow_data = followings.objects.get(user_id =login_data.user_id.user_id)
+        followings_list = json.loads(follow_data.followings)
+        followed_data = followers.objects.get(user_id = to_follow)
+        followers_list = json.loads(followed_data.followers)
+        if state == "Follow":
+            list(set(followings_list.append(to_follow)))
+            list(set(followers_list.append(login_data.user_id.user_id)))
             
-            follow_data = followings.objects.get(user_id =login_data.user_id.user_id)
-            followings_list = json.loads(follow_data.followings)
-            followed_data = followers.objects.get(user_id = to_follow)
-            followers_list = json.loads(followed_data.followers)
-            if state == "Follow":
-                list(set(followings_list.append(to_follow)))
-                list(set(followers_list.append(login_data.user_id.user_id)))
-                
-            elif state == 'Following':
-                list(set(followings_list.remove(to_follow)))
-                list(set(followers_list.remove(login_data.user_id.user_id)))
+        elif state == 'Following':
+            list(set(followings_list.remove(to_follow)))
+            list(set(followers_list.remove(login_data.user_id.user_id)))
 
-            followings.objects.filter(user_id = login_data.user_id.user_id).update(followings = json.dumps(followings_list))
-            followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
+        followings.objects.filter(user_id = login_data.user_id.user_id).update(followings = json.dumps(followings_list))
+        followers.objects.filter(user_id = to_follow ).update(followers = json.dumps(followers_list))
 
-            return Response({'status': 'success' , "followings":followings_list})    
-        else:
-            return Response({'status' : 'loginRequired'})
-    except Exception as e:
-        print(e)
-        return Response({'status':'fail'})
+        return Response({'status': 'success' , "followings":followings_list})    
+    else:
+        return Response({'status' : 'loginRequired'})
+    # except Exception as e:
+    #     print(e)
+    #     return Response({'status':'fail'})
 
 @api_view(['POST'])
 def get_user_details(request):
