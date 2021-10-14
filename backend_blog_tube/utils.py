@@ -179,7 +179,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
                 elem += f"<li>{i}</li>"
             elem += "</ul>"
         elif keys[0] == "Instagram Post":
-            elem = (f'''<iframe src="https://www.instagram.com/p/${part[keys[0]]}/?utm_source=ig_web_copy_linkembed"
+            elem = (f'''<iframe src="https://www.instagram.com/p/{part[keys[0]]}/?utm_source=ig_web_copy_linkembed"
             title="Instagram Post"
             style="border-radius: 5px;
     justify-self: center;
