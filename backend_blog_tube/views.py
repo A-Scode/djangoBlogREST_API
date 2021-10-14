@@ -272,7 +272,7 @@ def getBlog(request):
         user_details['total_blogs'] = blogger.blogs_upload
         user_details['followers_count'] = len(json.loads(followers.objects.get(user_id  = blogger.user_id).followers))
         blog_data  = blogs_data.objects.get(blog_id = bid)
-        data = json.load(blog_data.blog_data)
+        data = json.loads(blog_data.blog_data)
         blog = blogs.objects.get(blog_id  = bid)
         blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
         return Response({"status":"success" , "blog": data ,"title": blog.blog_title ,
