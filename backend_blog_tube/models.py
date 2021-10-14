@@ -149,3 +149,7 @@ class login_session(models.Model):
     user_id = ForeignKey(to = users , on_delete= models.CASCADE)
     session = CharField(max_length= 200,unique=True )
 
+class blogs_data(models.Model):
+    blog_id = models.ForeignKey(to = blogs ,on_delete=models.CASCADE)
+    blog_data = models.JSONField()
+

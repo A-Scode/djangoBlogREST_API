@@ -1,6 +1,6 @@
 
 import urllib
-from .models import users , blogs, comments,followers,settings as user_settings
+from .models import blogs_data, users , blogs, comments,followers,settings as user_settings
 from datetime import datetime
 import json,shutil,random,string,os
 from cryptography.fernet import Fernet
@@ -206,13 +206,10 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     return data_lsit
 
 
-def generate_blog(data , uid  , bid ,file_path ):
+def generate_blog(data , uid  , bid  ):
     blog_elem_list = generate_elem_list(data ,uid,bid)
-    if not os.path.exists(file_path ):
-            os.makedirs(file_path)
-    file = open(os.path.join(file_path,f"blog_{bid}.json"),'w')
-    file.write(json.dumps(blog_elem_list,indent= 4))
-    file.close()
+    blog_data = blogs_data(blog_id= bid ,blog_data  = json.dumps(blog_elem_list))
+    blog_data.save()
 
 
 def edit_title_image(name , file_path,empty = False,title=""):

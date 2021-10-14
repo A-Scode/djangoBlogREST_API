@@ -5,7 +5,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view,renderer_classes
 from rest_framework.renderers import StaticHTMLRenderer
-from .models import followings, users, blogs, comments,settings as users_settings,followers,signup_data,login_session
+from .models import blogs_data, followings, users, blogs, comments,settings as users_settings,followers,signup_data,login_session
 from . import utils
 import json,os,shutil,base64
 from django.conf import settings
@@ -251,7 +251,7 @@ def upload_blog(request):
                     utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
             if data['blog_title_image'] == "":
                 utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
-            utils.generate_blog(data['blog'],uid , bid ,file_path , )
+            utils.generate_blog(data['blog'],uid , bid )
             utils.blog_files_upload_to_ftp(uid , bid , file_path,data  )
         else:
             return Response({"status" :"loginRequired"})
@@ -271,9 +271,8 @@ def getBlog(request):
         user_details['user_name'] = blogger.user_name
         user_details['total_blogs'] = blogger.blogs_upload
         user_details['followers_count'] = len(json.loads(followers.objects.get(user_id  = blogger.user_id).followers))
-        file = open(os.path.join(settings.MEDIA_ROOT,uid ,bid ,f"blog_{bid}.json" ))
-        data = json.load(file)
-        file.close()
+        blog_data  = blogs_data.objects.get(blog_id = bid)
+        data = json.load(blog_data.blog_data)
         blog = blogs.objects.get(blog_id  = bid)
         blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
         return Response({"status":"success" , "blog": data ,"title": blog.blog_title ,
