@@ -187,6 +187,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     height: auto;
     aspect-ratio: 2 / 3.7;
     max-width: 500px;
+    max-height:700px;
     width: 90%;
     border-radius: 5px;"
     frameborder="0" scrolling="no" allowtransparency="true"></iframe>''')
