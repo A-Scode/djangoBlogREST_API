@@ -190,14 +190,13 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     width: 90%;
     border-radius: 5px;"
     frameborder="0" scrolling="no" allowtransparency="true"></iframe>''')
-        elif keys[0] == "Instagram Post":
+        elif keys[0] == "Tweet":
                     elem = (f'''<iframe src="https://twitframe.com/show?url={part[keys[0]]}"
                     title="Instagram Post"
                     style="justify-self: center;
             box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
             min-width: 250px;
             height: auto;
-            aspect-ratio: 2 / 3.7;
             max-width: 500px;
             width: 90%;
             border-radius: 5px;"
