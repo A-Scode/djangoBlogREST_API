@@ -211,13 +211,15 @@ def user_list(request):
 @api_view(['POST'])
 def logout_validation(request ):
     check_session = request.headers['session']
-    user_id = request.headers['user_id']
-    login_data = login_session.objects.get(session = check_session )
-    if login_data.session == check_session:
-        login_session.objects.filter(session = check_session ).delete()
+    try:
+        login_data = login_session.objects.get(session = check_session )
+        if login_data.session == check_session:
+            login_session.objects.filter(session = check_session ).delete()
+            return Response({"status": "success"})
+        else:
+            return Response({'status' : 'fail'})
+    except:
         return Response({"status": "success"})
-    else:
-        return Response({'status' : 'fail'})
 
 
 @api_view(['POST'])

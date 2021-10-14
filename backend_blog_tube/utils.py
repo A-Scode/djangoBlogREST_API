@@ -181,12 +181,14 @@ def generate_elem_list(data ,uid  , bid , preview = False):
         elif keys[0] == "Instagram Post":
             elem = (f'''<iframe src="https://www.instagram.com/p/{part[keys[0]]}/?utm_source=ig_web_copy_linkembed"
             title="Instagram Post"
-            style="border-radius: 5px;
-    justify-self: center;
+            style="justify-self: center;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
-    aspect-ratio: 2 / 3;
-    width: inherit;
-    max-width: 500px;"
+    min-width: 250px;
+    height: auto;
+    aspect-ratio: 2 / 3.7;
+    max-width: 500px;
+    width: 90%;
+    border-radius: 5px;"
     
     frameborder="0" scrolling="no" allowtransparency="true"></iframe>''')
         data_lsit.append(elem)
