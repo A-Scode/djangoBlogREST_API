@@ -331,7 +331,6 @@ def blog_files_upload_to_ftp(uid,bid , filepath ):
     ftp.cwd(bid)
     files = os.walk(filepath)
     files = next(files)[-1]
-    files.remove(f'blog_{bid}.json')
     file2 = open(os.path.join(os.getcwd(),'compFile.bin') , 'wb+')
     for filename in files:
         file = open(os.path.join(filepath,filename) , 'rb')

@@ -243,7 +243,6 @@ def upload_blog(request):
                     name="title."+file.name[-3:]
                     if os.path.exists(os.path.join(file_path, name)):
                         os.remove(os.path.join(file_path, name))
-                file_url = fs.save( name , file)
                 file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
                 if name[:-3] == "title.":
                     utils.edit_title_image(name , file_path)
