@@ -251,7 +251,7 @@ def upload_blog(request):
                     utils.compress_img(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
             if data['blog_title_image'] == "":
                 utils.edit_title_image("title.png" , file_path , empty=True , title=data['title'])
-            utils.blog_files_upload_to_ftp(uid , bid , file_path,data  )
+            utils.blog_files_upload_to_ftp(uid , bid , file_path  )
             utils.generate_blog(data['blog'],uid , bid ,data)
         else:
             return Response({"status" :"loginRequired"})
