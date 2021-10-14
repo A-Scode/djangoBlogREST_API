@@ -179,7 +179,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
                 elem += f"<li>{i}</li>"
             elem += "</ul>"
         elif keys[0] == "Instagram Post":
-            elem = (f'''<iframe src="https://www.instagram.com/p/{part[keys[0]]}/?utm_source=ig_web_copy_linkembed"
+            elem = (f'''<iframe src="https://www.instagram.com/p/{part[keys[0]]}/embed?utm_source=ig_web_copy_linkembed"
             title="Instagram Post"
             style="justify-self: center;
     box-shadow: rgb(0 0 0 / 20%) 0px 0px 5px 3px;
@@ -187,7 +187,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
     height: 80vh;
     max-width: 500px;
     max-height:700px;
-    width: 90%;
+    width: 100%;
     border-radius: 5px;"
     frameborder="0" scrolling="yes" allowtransparency="true"></iframe>''')
         elif keys[0] == "Tweet":
@@ -198,7 +198,7 @@ def generate_elem_list(data ,uid  , bid , preview = False):
             min-width: 250px;
             height: 70vh;
             max-width: 500px;
-            width: 90%;
+            width: 100%;
             border-radius: 5px;"
             frameborder="0" scrolling="yes" allowtransparency="true"></iframe>''')
     
