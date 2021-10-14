@@ -13,8 +13,8 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
-import django.env_variables 
-django.env_variables.declare_variables()
+# import django.env_variables 
+# django.env_variables.declare_variables()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,7 +27,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ['django_secret_key']
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True #os.environ['DEBUG']
+DEBUG = os.environ['DEBUG']
 
 ALLOWED_HOSTS = ["*"]
 
