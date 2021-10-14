@@ -8,8 +8,8 @@ from PIL  import Image, ImageFilter ,ImageDraw , ImageFont
 from django.conf import settings
 from django.core.mail import send_mail
 from urllib import request,error
-# import django.env_variables 
-# django.env_variables.declare_variables()
+import django.env_variables 
+django.env_variables.declare_variables()
 
 import textwrap, mimetypes,ftplib
 
