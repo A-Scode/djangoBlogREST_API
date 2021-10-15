@@ -275,7 +275,9 @@ def getBlog(request):
         blog = blogs.objects.get(blog_id  = bid)
         blogs.objects.filter(blog_id = bid ).update(views = blog.views +1 )
         return Response({"status":"success" , "blog": data ,"title": blog.blog_title ,
-        "likes":blog.likes ,"dislikes":blog.dislikes , "views":blog.views ,"image_url": f"{os.environ['current_url']}/backend_api/getMedia?media={uid}/{bid}/title.png",
+        "likes":blog.likes ,"dislikes":blog.dislikes , "views":blog.views ,
+        "image_url": f"{os.environ['current_url']}/backend_api/getMedia?media={uid}/{bid}/title.png",
+        "discription":blog.discription,
                     "blogger_details":user_details})
     except Exception as e:
         print(e)
