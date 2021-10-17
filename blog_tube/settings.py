@@ -60,7 +60,7 @@ CORS_ALLOW_CREDENTAILS = True
 
 CORS_ALLOW_HEADERS = ["*"]
 
-# CORS_ORIGIN_ALLOW_ALL = True
+CORS_ORIGIN_ALLOW_ALL = True
 
 CORS_ORIGIN_WHITELIST = [ 
     "https://a-scode.github.io",os.environ['react_origin']
