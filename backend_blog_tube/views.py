@@ -235,6 +235,7 @@ def upload_blog(request):
             for name in request.FILES:
                 fs = FileSystemStorage(file_path)
                 file = request.FILES[name]
+                fs.save()
                 print(utils.getFileType(file.name))
                 if name == "blog_title_image":
                     name="title."+file.name[-3:]
