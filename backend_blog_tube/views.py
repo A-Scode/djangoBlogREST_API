@@ -235,13 +235,13 @@ def upload_blog(request):
             for name in request.FILES:
                 fs = FileSystemStorage(file_path)
                 file = request.FILES[name]
-                fs.save()
                 print(utils.getFileType(file.name))
                 if name == "blog_title_image":
                     name="title."+file.name[-3:]
                     if os.path.exists(os.path.join(file_path, name)):
                         os.remove(os.path.join(file_path, name))
                 file_type = utils.getFileType(os.path.join(settings.MEDIA_ROOT , uid ,bid,name))
+                fs.save(name,file)
                 if name[:-3] == "title.":
                     utils.edit_title_image(name , file_path)
                 elif file_type == 'image':
