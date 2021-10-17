@@ -13,9 +13,6 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 from pathlib import Path
 import os
 
-# import django.env_variables 
-# django.env_variables.declare_variables()
-
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,7 +26,7 @@ SECRET_KEY = os.environ['django_secret_key']
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG =os.environ['DEBUG']
 
-ALLOWED_HOSTS = ["*"]
+ALLOWED_HOSTS = ["https://blogtube.herokuapp.com"]
 
 
 # Application definition
@@ -63,10 +60,9 @@ CORS_ALLOW_CREDENTAILS = True
 
 CORS_ALLOW_HEADERS = ["*"]
 
-CORS_ORIGIN_ALLOW_ALL = True
-# CORS_ORIGIN_WHITELIST = ["https://192.168.43.81:3000", #static local ip
-#     "https://blogtube.herokuapp.com","https://a-scode.github.io"
-# ]
+CORS_ORIGIN_WHITELIST = [ 
+    "https://a-scode.github.io",os.environ['react_origin']
+]
 
 
 ROOT_URLCONF = 'blog_tube.urls'
