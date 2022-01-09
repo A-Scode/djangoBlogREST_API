@@ -102,7 +102,7 @@ def create_session():
 def get_profile_photo_path(user_id):
     unknown_user = os.path.join(settings.MEDIA_ROOT ,"assets","username.svg")
     try:
-        photo = urllib.request.urlopen(f'ftp://{os.environ["ftp_username"]}:{os.environ["ftp_pass"]}@{os.environ["ftp_provider"]}/htdocs/BlogTube/{user_id}/profile.jpg')
+        photo = urllib.request.urlopen(f'ftp://{os.environ["ftp_username"]}:{os.environ["ftp_pass"]}@{os.environ["ftp_provider"]}/BlogTube/{user_id}/profile.jpg')
         return photo , photo.info().get_content_type()
     except Exception as e:
         photo = open(unknown_user , 'rb')
@@ -313,7 +313,7 @@ def ftp_retrive_file(path):
         num = 1
         while True:
             file = request.urlopen(
-            f"ftp://{os.environ['ftp_username']}:{os.environ['ftp_pass']}@{os.environ['ftp_provider']}/htdocs/BlogTube/{init_path}/__part{num}__{filename}"
+            f"ftp://{os.environ['ftp_username']}:{os.environ['ftp_pass']}@{os.environ['ftp_provider']}/BlogTube/{init_path}/__part{num}__{filename}"
                 )
             file_data+= file.read()
             mime = file.info().get_content_type()
@@ -323,7 +323,7 @@ def ftp_retrive_file(path):
         return file_data ,mime
 
 def blog_files_upload_to_ftp(uid,bid , filepath ):
-    ftp = ftpopen(f'/htdocs/BlogTube/{uid}')
+    ftp = ftpopen(f'/BlogTube/{uid}')
     ftp.mkd(bid)
     ftp.cwd(bid)
     files = os.walk(filepath)
@@ -351,7 +351,7 @@ def blog_files_upload_to_ftp(uid,bid , filepath ):
     ftpclose(ftp)
 
 def ftp_upload_profile_photo(uid):
-    ftp = ftpopen('/htdocs/BlogTube')
+    ftp = ftpopen('/BlogTube')
     ftp.mkd(uid)
     ftp.cwd(uid)
     profile_path = os.path.join(settings.MEDIA_ROOT , uid , 'profile','profile.jpg')
