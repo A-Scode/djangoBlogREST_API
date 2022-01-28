@@ -70,6 +70,7 @@ def check_email(email):
 
 def image_resize(folder_path , img_name):
     img = Image.open(os.path.join(folder_path , img_name))
+    img = img.convert('RGB')
     width , height = img.size
     ratio = width/height
     new_width = 160
