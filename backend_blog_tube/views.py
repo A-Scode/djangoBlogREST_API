@@ -43,6 +43,7 @@ def signup(request):
                 fs =  FileSystemStorage(image_path)
                 file = request.FILES['image']
                 file_name  = file.name
+                print(file_name)
                 file_url = fs.save(f'{uid}_profile'+file_name[ (len(file_name)-(file_name[::-1].find("."))-1):], file)
                 print(file_url)
                 utils.image_resize(image_path , file_url)
