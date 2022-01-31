@@ -1,0 +1,6 @@
+services:
+  - type : web
+    name : blogtube
+    env : python 
+    buildCommand : "./build.sh"
+    startCommand : "gunicorn blog_tube.wsgi:application"
