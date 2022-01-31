@@ -229,7 +229,6 @@ def edit_title_image(name , file_path,empty = False,title=""):
         back_img.save(os.path.join(file_path,name)[:-3]+"png")
         img.close()
         back_img.close()
-        os.remove(os.path.join(file_path , name))
     else :
         img = request.urlretrieve("https://picsum.photos/500/281",os.path.join(file_path , "title.png"))
         img = Image.open(os.path.join(file_path , "title.png"))
